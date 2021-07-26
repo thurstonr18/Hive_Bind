@@ -1,0 +1,66 @@
+<!-- templates/registration/login.html -->
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+@media (max-width: 480px) {
+  body{
+    width: 300px;
+    max-width: 480px;
+  }
+  .card{
+    width: 350px;
+    margin-top: 5%;
+  }
+  .subCardLogin{
+    width: 265px;
+    position: absolute;
+    top: 9%;
+
+  }
+  #loginLogo{
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+}
+</style>
+<body style="background-color: #222">
+  <div class="row">
+    <span class="loginBanner">
+      <img src="/media/website.logo.full.png" class="img-fluid" style="margin-left: 12%;">
+    </span>
+  </div>
+    <div class="row" style="margin-bottom: 15%; margin-left: auto; margin-right: auto;">
+      <div class="col-sm-3">
+      </div>
+      <div class="container" style="margin-left: auto; margin-right: auto;">
+    <div class="col-sm-7">
+      <div class="card">
+        <div class="card-header">
+         <center> Welcome</center>
+      <!--<img id="loginLogo" src="/media/website.logo.small.png" class="img-fluid" style="display: inline-block; float: right; margin-top: -3%;">-->
+    </div>
+      <div class="card-body">
+         <center>
+          <form method="post" id="loginForm">
+            {% csrf_token %}
+           
+            <input type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username" placeholder="Username">
+            <br>
+            <input type="password" name="password" autocomplete="current-password" required="" id="id_password" placeholder="Password">
+            <br>
+            <br>
+            <button class="btn btn-primary" id="loginCheck" type="submit" style="width: 70px; height:  30px; font-size: 14px;">login</button>
+
+          </form>
+     </center>
+        </div>
+    </div>
+  </div>
+  </div>
+</div>
+</body>
+
+{% endblock %}

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html> 
+<head>
+	<title>Dashboard</title>
+</head>
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+<style>
+
+</style>
+
+
+
+<!--style="background-color: #297373;"-->
+<body>
+  <div id="main">
+<div class="navbar navbar-inverse navbar-fixed-left">
+  <a href="/dashboard/"><img src="/media/website.logo.full.small.png" class="img-fluid"></a>
+  <ul class="nav navbar-nav">
+
+   <li class="navy"><a href="/hardware/">Hardware</a></li>
+   <li class="navy"><a href="/software/">Software</a></li>
+   <li class="navy"><a href="#">History</a></li>
+   <li class="navy"><a href="/accounts/logout">Log Out</a></li>
+  </ul>
+</div>
+
+<div class="rightFluid container">
+<h4 class="dashboard-header">
+  <span>Hardware</span>
+</h4>
+
+
+ 
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="all-tab" href="#allDevices" data-toggle="tab" role="tab" aria-selected="true">All</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="unassigned-hard" href="#unassignedHW" data-toggle="tab" role="tab" aria-controls="unassignedHW" aria-selected="false">Unassigned</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="push-HW" href="#pushHW" data-toggle="tab" role="tab" aria-controls="pushHW" aria-selected="false">Deploy Software</a>
+  </li>
+
+
+  <li class="nav-item" role="presentation">
+    <a href="#" class="pumpkinBoi" data-toggle="modal" data-target="#myHardModal">Add Device</a>
+  </li>
+
+
+</ul>
+<div class="tab-content">
+
+<div class="tab-pane fade show active" id="allDevices" role="tabpanel" aria-labelledby="all-tab">
+
+<table id="hardware-table" class="table">
+  <thead>
+      <tr>
+        <th>Friendly</th>
+        <th>OS</th>
+        <th>IP</th>
+        <th>MAC</th>
+        <th style="padding-right: 15px">Status</th>
+        <th>Software Group</th>
+        
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in hw %}
+    <tr>
+        
+        <td><a class="btn btn-primary hardAnchor" href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+        {% if 'Windows' in d.operating_system %}
+        <td><i class="fab fa-lg fa-windows" style="margin-right: 7%"></i>{{d.operating_system}}</td>
+        {% elif 'Debian' in d.operating_system %}
+        <td><i class="fab fa-lg fa-raspberry-pi" style="margin-right: 7%"></i>{{d.operating_system}}</td>
+        {% elif 'Raspbian' in d.operating_system %}
+        <td><i class="fab fa-lg fa-raspberry-pi" style="margin-right: 7%"></i>{{d.operating_system}}</td>
+        {% elif 'Ubuntu' in d.operating_system %}
+        <td><i class="fab fa-lg fa-ubuntu" style="margin-right: 7%"></i>{{d.operating_system}}</td>
+        {% endif %}
+        {% if d.identity is not None and d.identity2 is not None %}
+
+        <td>{{d.identity}} /<br>{{d.identity2}}</td>
+        <td>{{d.mac}} /<br>{{d.mac2}}</td>
+
+        {% elif d.identity is None and d.identity2 is not None %}
+        <td>{{d.identity2}}</td>
+        <td>{{d.mac2}}</td> 
+
+        {% else %}
+        <td>{{d.identity}}</td>
+        <td>{{d.mac}}</td>
+        {% endif %}
+        
+        
+
+
+        {% if d.identity is not None and d.identity2 is not None %}
+          {% if d.get_online_display == 'Online' %}
+          <td><i class="fas fa-ethernet" style="color: green; margin-left: 5%;"></i>
+            <br><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+          <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+        {% elif d.identity is None and d.identity2 is not None %}
+          {% if d.get_online_display == 'Online' %}
+          <td><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+          <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+        {% else %}
+        {% if d.get_online_display == 'Online' %}
+        <td><i class="fas fa-ethernet" style="color: green;margin-left: 5%;"></i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+        {% endif %}
+
+        {% if d.sgroup is None %}
+        <td><button type="button" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}" name="{{d.pk}}" class="noGroup hardAnchor"><i class="material-icons assignME"  data-toggle="tooltipnone" data-placement="right" title="assign">add</i></button></td>
+        {% else %}
+
+        
+        <form method="post" id="hwSWGroup">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{d.pk}}" />
+        <td><i>{{d.sgroup}} <sup><span class="badge badge-pill badge-primary hardAnchorVersion">{{d.sgroup.version}}</span></sup></i><button type="submit" class="removeGroup hardAnchor" name="removeGroup" data-toggle="tooltip" data-placement="right" title="remove from this group"><i class="material-icons removeME">remove</i></button></td>
+       </form>
+        {% endif %}
+
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+</div>
+
+
+
+
+
+
+
+<div class="tab-pane fade" id="unassignedHW" role="tabpanel" aria-labelledby="unassigned-hard">
+
+
+  <table id="unassigned-hardware-table" class="table">
+  <thead>
+      <tr>
+        <th>Friendly</th>
+        <th>OS</th>
+        <th>IP</th>
+        <th>MAC</th>
+        <th style="padding-right: 15px">Status</th>
+        <th>Software Group</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in hw %}
+  {% if d.sgroup is None %}
+    <tr>
+        
+        <td><a class="btn btn-primary hardAnchor" href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+        <td>{{d.operating_system}}</td>
+        {% if d.identity is not None and d.identity2 is not None %}
+
+        <td>{{d.identity}} /<br>{{d.identity2}}</td>
+        <td>{{d.mac}} /<br>{{d.mac2}}</td>
+
+        {% elif d.identity is None and d.identity2 is not None %}
+        <td>{{d.identity2}}</td>
+        <td>{{d.mac2}}</td> 
+
+        {% else %}
+        <td>{{d.identity}}</td>
+        <td>{{d.mac}}</td>
+        {% endif %}
+        
+        
+
+
+        {% if d.identity is not None and d.identity2 is not None %}
+          {% if d.get_online_display == 'Online' %}
+          <td><i class="fas fa-ethernet" style="color: green; margin-left: 5%;"></i>
+            <br><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+          <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+        {% elif d.identity is None and d.identity2 is not None %}
+          {% if d.get_online_display == 'Online' %}
+          <td><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+          <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+        {% else %}
+        {% if d.get_online_display == 'Online' %}
+        <td><i class="fas fa-ethernet" style="color: green;margin-left: 5%;"></i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+        {% endif %}
+        {% if d.sgroup is None %}
+        <td><button type="button" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}" name="{{d.pk}}" class="noGroup"><i class="material-icons assignME"  data-toggle="tooltipnone" data-placement="right" title="assign">add</i></button></td>
+        {% else %}
+        <td><i>{{d.sgroup}}</i></td>
+       
+        {% endif %}
+      
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+      
+  
+</div>
+
+<div class="tab-pane fade" id="pushHW" role="tabpanel" aria-labelledby="push-HW">
+
+
+  <table id="push-hardware-table" class="table">
+  <thead>
+      <tr>
+        <th>Friendly</th>
+        <th>OS</th>
+        <th>IP</th>
+        <th>MAC</th>
+        <th style="padding-right: 15px">Status</th>
+        <th>Software Group</th>
+        <th>Deploy</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in hw %}
+  {% if d.sgroup is not None %}
+    <tr>
+        <td><a class="btn btn-primary hardAnchor" href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+        <td>{{d.operating_system}}</td>
+        <td>{{d.identity}}</td>
+        <td>{{d.mac}}</td>
+        <td>{{d.get_online_display}}</td>
+        <td>{{d.sgroup}}</td>
+        {% ifchanged d.sgroup %}
+        <form method="post">
+          {% csrf_token %}
+        <td><button class="btn btn-primary hardAnchor" name="deployHardware" value="{{d.pk}}" data-toggle="tooltip" data-placement="right" title="deploy only to this device">{{d.sgroup}}</button></td>
+      </form>
+        {% endifchanged %}
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+
+
+
+
+</div>
+</div>
+
+
+<!-- The Modal -->
+<div class="modal fade" id="myHardModal">
+  <div class="modal-dialog">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Download</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="post">
+
+          {% csrf_token %}
+         
+
+
+            <button type="submit" class="btn btn-submit getWindowsCode" name="downloadWindowsCall"><i class="fab fa-2x fa-windows"></i></button>
+           
+            <p style="position: absolute; left: 43%; top: 35%"><strong><i class="fas fa-chevron-left"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-chevron-right"></i></strong></p>
+            
+            <button type="submit" class="btn btn-submit getLinuxCode" name="downloadLinuxCall"><i class="fab fa-2x fa-raspberry-pi"></i></button>
+
+
+      
+
+        </form> 
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+          <div class="service0Container">
+          <code class="js" id="runService0">unzip > right-click > Run as admin</code>
+          </div>
+
+          <code class="js" id="runService">sudo python3 hiveservice.py</code>
+      
+        
+          <button class="clipBtn" id="clipBtn" data-clipboard-target="#runService" data-clipboard-text="1">
+              <i class="small material-icons">content_copy</i>
+          </button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+</body>
+
+
+
+
+
+{% for d in hw %}
+<div class="modal fade" id="myUnboundModal{{d.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Currently not assigned to any Group</h4>
+        <br>
+
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <h5>Would you like to assign this device to a Software Group?</h5>
+        <form method="post">
+          {% csrf_token %}
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Software</th>
+                <th>Version</th>
+             
+               
+              </tr>
+            </thead>
+          <tbody>
+         
+          {% for s in sw %}
+            <tr>
+                <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.name}}</label></td>
+                <td>{{s.version}}</td>
+                
+            </tr>
+      {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        <span id="assignDevices"><button type="submit" class="btn btn-submit" name="assignDevices" value="{{d.pk}}"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+
+
+
+
+
+
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script>
+
+$('#clipBtn').tooltip({
+  trigger: 'click',
+  placement: 'top'
+});
+
+function setTooltip(message) {
+  $('#clipBtn').tooltip('hide')
+    .attr('data-original-title', message)
+    .tooltip('show');
+}
+
+function hideTooltip() {
+  setTimeout(function() {
+    $('#clipBtn').tooltip('hide');
+  }, 1000);
+}
+
+var clipboard = new ClipboardJS('.clipBtn', {
+    container: document.getElementById('modal')
+});
+clipboard.on('success', function(e) {
+  setTooltip('Copied!');
+  hideTooltip();
+});
+
+clipboard.on('error', function(e) {
+  setTooltip('Failed!');
+  hideTooltip();
+});
+</script>
+<script>
+  $(document).ready(function(){
+  $('[data-toggle="tooltipnone"]').tooltip();
+});
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+<script>
+  function refreshPage(){
+    location.reload();
+  }
+</script>
+ <script type="text/javascript">
+
+      $(function () {
+          var asyncSuccessMessageUpdate = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: device was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+            "<\/script>"
+          ].join("");
+
+          // modal form
+          function updateHardwareModalForm() {
+            $(".update-hardware").each(function () {
+              $(this).modalForm({
+                formURL: $(this).data("form-url"),
+                asyncUpdate: true,
+                asyncSettings: {
+                  closeOnSubmit: true,
+                  successMessage: asyncSuccessMessageUpdate,
+                  dataUrl: "/hardwares/",
+                  dataElementId: "#hardware-table",
+                  dataKey: "table",
+                  addModalFormFunction: reinstantiateModalForms
+                }
+              });
+          
+            });
+          }
+          updateHardwareModalForm();
+
+
+
+          function reinstantiateModalForms() {  
+            updateHardwareModalForm();
+          }
+
+          $("#filter-book").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url")});
+          });
+
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+  </script>
+
+
+{% for d in hw %}
+
+
+
+
+{% endfor %}
+
+{% endblock %}
+</html>

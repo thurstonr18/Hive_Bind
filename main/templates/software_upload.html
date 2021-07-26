@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+</head>
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+<style>
+.update-software{
+  font-size: 16px;
+}
+
+
+
+#addSoftware{
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+</style>
+<body>
+  <div id="main">
+<div class="navbar navbar-inverse navbar-fixed-left">
+  <a href="/dashboard/"><img src="/media/website.logo.full.small.png" class="img-fluid"></a>
+  <ul class="nav navbar-nav">
+ 
+   <li class="navy"><a href="/hardware/">Hardware</a></li>
+   <li class="navy"><a href="/software/">Software</a></li>
+   <li class="navy"><a href="#">History</a></li>
+   <li class="navy"><a href="/accounts/logout">Log Out</a></li>
+  </ul>
+</div>
+
+<div class="rightFluid container">
+<h4 class="dashboard-header">
+  <span>Software</span>
+</h4>
+
+
+
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="all-tab" href="#allSW" data-toggle="tab" role="tab" aria-selected="true">All</a>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="assigned-soft" href="#assignedSW" data-toggle="tab" role="tab" aria-selected="true">Assigned</a>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="unassigned-soft" href="#unassignedSW" data-toggle="tab" role="tab" aria-controls="unassignedSW" aria-selected="false">Unassigned</a>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="push-SW" href="#pushSW" data-toggle="tab" role="tab" aria-controls="pushSW" aria-selected="false">Push Software</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a href="#" class="pumpkinBoi" data-toggle="modal" data-target="#mySoftModal">Upload Software</a>
+  </li>
+
+</ul>
+<div class="tab-content">
+
+<div class="tab-pane fade show active" id="allSW" role="tabpanel" aria-labelledby="all-soft">
+<table id="software-table" class="table">
+  <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Software</th>
+        <th>Version</th>
+        <th>Status</th>
+        <th>Bound Devices</th>
+        <th>Destination</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in software %}
+
+    <tr>
+        
+        
+        
+        
+        <td><button name="{{d.pk}}" class="update-software btn btn-sm btn-primary hardAnchor" id="mmmodal" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+        
+        <td>{{d.software|cut:'Hive/software/IoT/'}}</td>
+        <td>{{d.version}}</td>
+        {% if d.deploying  %}
+        <td>Deploying&nbsp;&nbsp;
+          <div class="spinner-border" role="status">
+            <span class="sr-only">{{d.deploying|yesno:"deploying,not deploying"}}</span>
+          </div>
+        </td>
+        {% else %}
+        <td>dormant</td>
+        {% endif %}
+
+
+        {% if d.devices.all|length == 0 %}
+        <td><a href="#" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable hardAnchor">{{d.devices.all|length}}</span></a></td>
+        {% else %}
+        <td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable hardAnchor">{{d.devices.all|length}}</span></a></td>
+        {% endif %}
+        <td>{{d.destination}}</td>
+      
+    </tr>
+
+  {% endfor %}
+  </tbody>
+</table>
+</div>  
+
+
+
+<div class="tab-pane fade" id="assignedSW" role="tabpanel" aria-labelledby="assigned-soft">
+
+
+<table id="software-table" class="table">
+  <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Software</th>      
+        <th>Version</th>
+        <th>Status</th>
+        <th>Bound Devices</th>
+        <th>Destination</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in software %}
+  {% if d.assigned == True %}
+    <tr>
+        
+
+        <td><button class="update-software btn btn-sm btn-primary hardAnchor" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+        <td>{{d.software|cut:'Hive/software/IoT/'}}</td>
+        <td>{{d.version}}</td>
+        <td>{{d.assigned|yesno:"assigned,unassigned"}}</td>
+        <td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable hardAnchor">{{d.devices.all|length}}</span></a></td>
+        <td>{{d.destination}}</td>
+      
+    </tr>
+   {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+
+
+
+  </div>
+
+<div class="tab-pane fade" id="unassignedSW" role="tabpanel" aria-labelledby="unassigned-soft">
+
+
+  <table id="unassigned-software-table" class="table">
+  <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Software</th>       
+        <th>Version</th>
+        <th>Status</th>
+        <th>Bound Devices</th>
+        <th>Destination</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in software %}
+  {% if d.assigned == False %}
+    <tr>
+        
+
+        <td><button class="update-software btn btn-sm btn-primary hardAnchor" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+        <td>{{d.software|cut:'Hive/software/IoT/'}}</td>
+        <td>{{d.version}}</td>
+        <td>{{d.assigned|yesno:"assigned,unassigned"}}</td>
+        <td><a href="#" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable hardAnchor">{{d.devices.all|length}}</span></a></td>
+        <td>{{d.destination}}</td>
+      
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+
+      
+  
+</div>
+
+<div class="tab-pane fade" id="pushSW" role="tabpanel" aria-labelledby="push-SW">
+
+<table id="push-software-table" class="table">
+  <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Software</th>       
+        <th>Version</th>
+        <th>Status</th>
+        <th>Bound Devices</th>
+        <th>Destination</th>
+        <th>Deploy</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in software %}
+  {% if d.assigned == True %}
+    <tr>
+        
+
+        <td><button class="update-software btn btn-sm btn-primary hardAnchor" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+        <td>{{d.software|cut:'Hive/software/IoT/'}}</td>
+        <td>{{d.version}}</td>
+        <td>{{d.assigned|yesno:"assigned,unassigned"}}</td>
+        <td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable hardAnchor">{{d.devices.all|length}}</span></a></td>
+        <td>{{d.destination}}</td>
+        <td>
+            <button name="masterPush" data-toggle="modal" data-target="#confirmDeploy{{d.pk}}" class="deploySoftwareButton"><img class="imgButton" src="/media/big.little.hive.png"></button>
+        </td>
+      
+    </tr>
+   {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+
+
+
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+
+
+<!-- The Modal -->
+<div class="modal fade" id="mySoftModal">
+  <div class="modal-dialog ">
+    <div class="modal-content" > 
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Upload software to Hive</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{form.as_p}}
+
+
+          <br>
+          <br>
+          <br>
+          <center><button type="submit" class="btn btn-submit getCode" name="addNewSoftware"><i class="material-icons" style="font-size: 32px; color: white;">upload</i></button></center>
+          <script>
+            function clearForm(){
+              this.value = '';
+            }
+          </script>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% for s in software %}
+<!-- The Modal -->
+<div class="modal fade" id="myBoundModal{{s.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Devices in <i style="text-decoration: underline;">{{s.name}}</i></h4>
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          
+          {% for d in s.devices.all %}
+ 
+            <tr>
+              {% if 'Windows' in d.operating_system %}
+                <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-windows"></i></td>
+              {% elif 'Debian' in d.operating_system %}
+                <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></td>
+              {% elif 'Raspbian' in d.operating_system %}
+                <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></td>
+              {% elif 'Ubuntu' in d.operating_system %}
+              <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-ubuntu"></i></td>
+              {% endif %}
+                <td>{{d.identity}}</td>
+                <td>{{d.mac}}</td>
+                <td>{{d.get_online_display}}</td> 
+            </tr>
+      
+       
+          {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% for f in software %}
+<div class="modal fade" id="myUnboundModal{{f.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Currently no devices in this Group</h4>
+        <br>
+
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <h5>Would you like to assign some?</h5>
+        <form method="post">
+          {% csrf_token %}
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          {% for s in udevices %}
+          
+            <tr>
+              {% if 'Windows' in s.operating_system %}
+                <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-windows"></i></label></td>
+              {% elif 'Debian' in s.operating_system %}
+              <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></label></td>
+              {% elif 'Raspbian' in s.operating_system %}
+              <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></label></td>
+              {% elif 'Ubuntu' in s.operating_system %}
+              <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-ubuntu"></i></label></td>
+              {% endif %}
+                <td>{{s.identity}}</td>
+                <td>{{s.mac}}</td>
+                <td>{{s.get_online_display}}</td>           
+            </tr>
+          {% endfor %}
+         
+          </tbody>
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        <span id="assignDevices"><button type="submit" class="btn btn-submit" name="assignDevices" value="{{f.pk}}"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+{% for s in software %}
+<form method="post">
+  {% csrf_token %}
+<!-- The Modal -->
+<div class="modal fade" id="confirmDeploy{{s.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title"><center><strong class="confirmation">{{s.name}} version {{s.version}}</strong></center></h4>
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          <input type="hidden" name="softwarePK" value="{{s.pk}}" />
+          {% for d in s.devices.all %}
+            
+            <tr>
+                <input type="hidden" name="devicePK" value="{{d.pk}}" />
+                {% if 'Windows' in d.operating_system %}
+                <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-windows"></i></td>
+                {% elif 'Debian' in d.operating_system %}
+                  <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></td>
+                {% elif 'Raspbian' in d.operating_system %}
+                  <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-raspberry-pi"></i></td>
+                {% elif 'Ubuntu' in d.operating_system %}
+                <td>{{d.friendly_name}}&nbsp;&nbsp;&nbsp;&nbsp;<i class="fab fa-lg fa-ubuntu"></i></td>
+                {% endif %}
+                <td>{{d.identity}}</td>
+                <td>{{d.mac}}</td>
+                <td>{{d.get_online_display}}</td> 
+            </tr>
+      
+       
+          {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+
+      <center><p class="confirmMe">You are about to send <strong>{{s.name}} v{{s.version}}</strong> to these devices.<br><i>Do you wish to continue?</i></p></center>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-submit getCode" name="masterPush"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endfor %}
+
+
+
+
+
+
+
+</body>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script>
+  function refreshPage(){
+    location.reload();
+  }
+</script>
+ <script type="text/javascript">
+      $(function () {
+          var asyncSuccessMessageUpdate = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: Software Group was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+            "<\/script>"
+          ].join("");
+
+          // modal form
+          function updateSoftwareModalForm() {
+            $(".update-software").each(function () {
+              $(this).modalForm({
+                formURL: $(this).data("form-url"),
+                asyncUpdate: true,
+                asyncSettings: {
+                  closeOnSubmit: true,
+                  successMessage: asyncSuccessMessageUpdate,
+                  dataUrl: "softwares/",
+                  dataElementId: "#software-table",
+                  dataKey: "table",
+                  addModalFormFunction: reinstantiateModalForms
+                }
+              });
+            });
+          }
+          updateSoftwareModalForm();
+
+
+          function reinstantiateModalForms() {  
+            updateSoftwareModalForm();
+          }
+
+          $("#filter-book").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url")});
+          });
+
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+
+  </script>
+
+<script>
+function echoAction(){
+  console.log($("#mmmodal").attr("data-form-url"));
+  var pk = $("#mmmodal").attr("data-form-url");
+  var url = pk + 'editor/';
+  location.href = url;
+};
+</script>
+
+
+
+{% endblock %}
+</html>

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dashboard</title>
+</head>
+
+{% extends 'mobilebase.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+<style>
+/*
+th, td {background: #eee; padding: 8px}
+
+
+
+
+table thead {
+  display: none;
+}
+
+
+
+table tr {
+  margin-bottom: 8px;
+
+}
+
+table td {
+  display: flex;
+
+}
+
+table td::before {
+  content: attr(label);
+  font-weight: bold;
+  width: 120px;
+  min-width: 120px;
+}
+*/
+
+
+
+
+</style>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}">
+
+<script>
+$( document ).ready(function() {
+  $("#box").load("/{{lsoft}}");
+});
+</script>
+
+
+<body>
+  <div class="container">
+    <div class="myTabs">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="all-tab" href="#allDevices" data-toggle="tab" role="tab" aria-selected="true">All</a>
+  </li>
+  <li onclick="window.setMobileTable('table')" class="nav-item" role="presentation">
+    <a class="nav-link" id="unassigned-hard" href="#unassignedHW" data-toggle="tab" role="tab" aria-controls="unassignedHW" aria-selected="false">Unassigned</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="push-HW" href="#pushHW" data-toggle="tab" role="tab" aria-controls="pushHW" aria-selected="false">Push Software</a>
+  </li>
+  
+</ul>
+<span class="subTab">
+<img src="/media/searchicon.png" width="25" style="float: left; padding: 1%; margin-top: 2%;"><input type="text" name="search" id="mymInput" placeholder="Search">
+
+</span>
+</div>
+
+
+
+
+
+<div class="tab-content">
+
+{% if hw %}
+
+<div class="tab-pane fade show active" id="allDevices" role="tabpanel" aria-labelledby="all-tab">
+
+<table id="hardware-table" class="table">
+  <tbody>
+    {% for d in hw %}
+      <tr>
+        <th>Friendly</th>
+        <td><a href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+      </tr>
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}} /<br>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}} /<br>{{d.mac2}}</td>
+      </tr>
+          {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac2}}</td>
+      </tr>
+          {% else %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}}</td>
+      </tr>
+      {% endif %}
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+      
+        {% if d.get_online_display == 'Online' %}
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i>
+                <br><i class="material-icons" style="color: green;">wifi</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+
+      {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+
+      </tr>
+
+
+      {% else %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+      {% endif %}
+
+
+
+      <tr class="lastRow">
+        <th>Software Group</th>
+        {% if d.sgroup is None %}
+        <td class="lastRow"><button type="button" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}" name="{{d.pk}}" class="noGroup"><i class="material-icons assignME">add</i></button></td>
+        {% else %}
+        <form method="post" id="hwSWGroup">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{d.pk}}" />
+        <td class="lastRow"><i>{{d.sgroup}} <sup><span class="badge badge-pill badge-primary">{{d.sgroup.version}}</span></sup></i><button type="submit" class="removeGroup" name="removeGroup" data-toggle="tooltip" data-placement="right" title="remove from this group"><i class="material-icons removeME">remove</i></button></td>
+       </form>
+       {% endif %}
+      </tr>
+        
+      {% endfor %}
+
+  </tbody>
+</table>
+
+</div>
+
+
+
+<div class="tab-pane fade" id="unassignedHW" role="tabpanel" aria-labelledby="unassigned-hard" onclick="window.setMobileTable('table')">
+
+
+  <table id="unassigned-hardware-table" class="" onload="window.setMobileTable('table')">
+  <tbody>
+    {% for d in hw %}
+    {% if d.sgroup is None %}
+      <tr>
+        <th>Friendly</th>
+        <td><a href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+      </tr>
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}} /<br>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}} /<br>{{d.mac2}}</td>
+      </tr>
+          {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac2}}</td>
+      </tr>
+          {% else %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}}</td>
+      </tr>
+      {% endif %}
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+      
+        {% if d.get_online_display == 'Online' %}
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i>
+                <br><i class="material-icons" style="color: green;">wifi</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+
+      {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+
+      </tr>
+
+
+      {% else %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+      {% endif %}
+
+
+
+      <tr class="lastRow">
+        <th>Software Group</th>
+        {% if d.sgroup is None %}
+        <td class="lastRow"><button type="button" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}" name="{{d.pk}}" class="noGroup"><i class="material-icons assignME">add</i></button></td>
+        {% else %}
+        <form method="post" id="hwSWGroup">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{d.pk}}" />
+        <td class="lastRow"><i>{{d.sgroup}} <sup><span class="badge badge-pill badge-primary">{{d.sgroup.version}}</span></sup></i><button type="submit" class="removeGroup" name="removeGroup" data-toggle="tooltip" data-placement="right" title="remove from this group"><i class="material-icons removeME">remove</i></button></td>
+       </form>
+       {% endif %}
+      </tr>
+      {% endif %}
+      {% endfor %}
+
+  </tbody>
+</table>
+      
+
+</div>
+
+
+
+<div class="tab-pane fade" id="pushHW" role="tabpanel" aria-labelledby="push-HW">
+
+
+  <table id="push-hardware-table" class="table">
+ <tbody>
+    {% for d in hw %}
+    {% if d.sgroup is not None %}
+      <tr>
+        <th>Friendly</th>
+        <td><a href="{% url 'pi_details' d.pk %}">{{d.friendly_name}}</a></td>
+      </tr>
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}} /<br>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}} /<br>{{d.mac2}}</td>
+      </tr>
+          {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity2}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac2}}</td>
+      </tr>
+          {% else %}
+      <tr>
+        <th>IP</th>
+        <td>{{d.identity}}</td>
+      </tr>
+      <tr>
+        <th>MAC</th>
+        <td>{{d.mac}}</td>
+      </tr>
+      {% endif %}
+
+
+      {% if d.identity is not None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+      
+        {% if d.get_online_display == 'Online' %}
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i>
+                <br><i class="material-icons" style="color: green;">wifi</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+
+      {% elif d.identity is None and d.identity2 is not None %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">wifi</i></td>
+          {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+          {% endif %}
+
+      </tr>
+
+
+      {% else %}
+      <tr>
+        <th>Status</th>
+
+        
+        {% if d.get_online_display == 'Online' %}
+
+        <td><i class="material-icons" style="color: green;">settings_ethernet</i></td>
+        {% else %}
+        <td><i class="material-icons" style="color: red;">not_interested</i></td>
+        {% endif %}
+
+      </tr>
+      {% endif %}
+
+
+ 
+      <tr class="lastRow">
+        <th>Software Group</th>
+        {% if d.sgroup is None %}
+        <td class="lastRow"><button type="button" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}" name="{{d.pk}}" class="noGroup"><i class="material-icons assignME"  data-toggle="tooltipnone" data-placement="right" title="assign">add</i></button></td>
+        {% else %}
+        <form method="post" id="hwSWGroup">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{d.pk}}" />
+        <td class="lastRow"><i>{{d.sgroup}} <sup><span class="badge badge-pill badge-primary">{{d.sgroup.version}}</span></sup></i><button type="submit" class="removeGroup" name="removeGroup" data-toggle="tooltip" data-placement="right" title="remove from this group"><i class="material-icons removeME">remove</i></button></td>
+       </form>
+       {% endif %}
+      </tr>
+
+
+
+
+
+      {% else %}
+      
+      
+      {% ifchanged %}<div class="oops"><i class="material-icons">perm_device_information</i><h4>None of your devices are assigned to a software group</h4></div>{% endifchanged %}
+      
+
+
+
+      {% endif %}
+      {% endfor %}
+
+  </tbody>
+
+</table>
+</div>
+{% else %}
+<center>
+<div class="aintNoDevices">No devices added yet!<br>
+  <p style="font-size: 13px">Download the agent to begin monitoring your devices.</p>
+<button id="addHrdBtnMobile" type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#myHardModal">Add Device<br><i class="material-icons">download</i></button>
+</div>
+</center>
+
+{% endif %}
+
+</div>
+ 
+
+
+
+
+
+
+
+
+ <footer class="fixed-bottom" style="background-color: white">
+    <div class="row fixed-row-bottom">   
+
+        <div class="col align-self-center">
+          <a href="/dashboard/">
+            <img src="/media/website.logo.solid.png" width="45" style="margin-left: 14%;margin-bottom: 12%">
+
+            
+            <!--<img src="/media/website.logo.small.black.png" style="padding-bottom: 15%">-->
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/hardware/">
+            <img src="/media/hammer.png" width="52" height="42" style="margin-bottom: 13%; padding-right: 2%;">
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/software/">
+            <img src="/media/disc.png" width="50" height="50" style="margin-left: 4%; margin-bottom: 6%;">
+          </a>
+      </div>
+
+      <div class="col align-self-center">
+          <a href="#">
+            <img src="/media/hourglass.png" width="30" height="42" style="margin-left: 35%; margin-bottom: 9%">
+          </a>
+      </div>
+ 
+      <div class="col align-self-center">
+          <a href="/accounts/logout">
+            <img src="/media/exit.png" width="50" height="52" style="margin-bottom: 4%">
+          </a>
+      </div>
+
+  </div>
+</footer>
+
+</div> 
+</body>
+
+
+{% for d in hw %}
+<div class="modal fade" id="myUnboundModal{{d.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Currently not assigned to any Group</h4>
+        <br>
+
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <h5>Would you like to assign this device to a Software Group?</h5>
+        <form method="post">
+          {% csrf_token %}
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Software</th>
+                <th>Version</th>
+             
+               
+              </tr>
+            </thead>
+          <tbody>
+         
+          {% for s in sw %}
+            <tr>
+                
+                <td>
+                  <div class="custom-control custom-checkbox checkbox-lg">
+                  <input type="checkbox" class="custom-control-input" id="materialUnchecked" name="fname" value="{{s.pk}}">
+                  <label class="custom-control-label" for="materialUnchecked" style="padding-left: 25%">{{s.name}}</label>
+                   </div>
+              </td>
+             
+
+                <td>{{s.version}}</td>
+                
+            </tr>
+      {% endfor %}
+          </tbody> 
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-close mr-auto" data-dismiss="modal"><i class="material-icons" style="font-size: 32px; color: white;">close</i></button>
+        
+        <button id="assignDevices" type="submit" class="btn btn-submit" name="assignDevices" value="{{d.pk}}"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button>
+   
+         
+        </form>
+       
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+<div class="modal fade" id="myHardModal">
+  <div class="modal-dialog">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Download</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="post">
+
+          {% csrf_token %}
+          <center><button type="submit" class="btn btn-submit getCode" onclick="getCode()" name="downloadCall"><i class="material-icons" style="font-size: 20px; color: white">download</i></button></center>
+
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+       
+      
+          <code class="js" id="runService">sudo python3 hiveservice.py</code>
+      
+        
+          <button class="clipBtn" id="clipBtn" data-clipboard-target="#runService" data-clipboard-text="1">
+              <i class="small material-icons">content_copy</i>
+          </button>
+       
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+
+  <script type="text/javascript">
+
+      $(function () {
+          var asyncSuccessMessageUpdate = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: device was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+            "<\/script>"
+          ].join("");
+
+          // modal form
+          function updateHardwareModalForm() {
+            $(".update-hardware").each(function () {
+              $(this).modalForm({
+                formURL: $(this).data("form-url"),
+                asyncUpdate: true,
+                asyncSettings: {
+                  closeOnSubmit: true,
+                  successMessage: asyncSuccessMessageUpdate,
+                  dataUrl: "/hardwares/",
+                  dataElementId: "#hardware-table",
+                  dataKey: "table",
+                  addModalFormFunction: reinstantiateModalForms
+                }
+              });
+          
+            });
+          }
+          updateHardwareModalForm();
+
+
+
+          function reinstantiateModalForms() {  
+            updateHardwareModalForm();
+          }
+
+          $("#filter-book").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url")});
+          });
+
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+  </script>
+  <script>
+
+$('#clipBtn').tooltip({
+  trigger: 'click',
+  placement: 'top'
+});
+
+function setTooltip(message) {
+  $('#clipBtn').tooltip('hide')
+    .attr('data-original-title', message)
+    .tooltip('show');
+}
+
+function hideTooltip() {
+  setTimeout(function() {
+    $('#clipBtn').tooltip('hide');
+  }, 1000);
+}
+
+var clipboard = new ClipboardJS('.clipBtn', {
+    container: document.getElementById('modal')
+});
+clipboard.on('success', function(e) {
+  setTooltip('Copied!');
+  hideTooltip();
+});
+
+clipboard.on('error', function(e) {
+  setTooltip('Failed!');
+  hideTooltip();
+});
+</script>
+
+<script>
+  $(document).ready(function(){
+  $('[data-toggle="tooltipnone"]').tooltip();
+});
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+ <script>
+// listen for clicks to active nav
+$(document).on('click', '.nav-link.active', function(selector) {
+  const tableEl = document.querySelector(selector);
+  const thEls = tableEl.querySelectorAll('thead th');
+  const tdLabels = Array.from(thEls).map(el => el.innerText);
+  tableEl.querySelectorAll('tbody tr').forEach( tr => {
+    Array.from(tr.children).forEach( 
+      (td, ndx) =>  td.setAttribute('label', tdLabels[ndx])
+    );
+ 
+  hideTab($(this))
+});
+});
+</script>
+<script>
+ 
+window.setMobileTable = function(selector) {
+  // if (window.innerWidth > 600) return false;
+  const tableEl = document.querySelector(selector);
+  const thEls = tableEl.querySelectorAll('thead th');
+  const tdLabels = Array.from(thEls).map(el => el.innerText);
+  tableEl.querySelectorAll('tbody tr').forEach( tr => {
+    Array.from(tr.children).forEach( 
+      (td, ndx) =>  td.setAttribute('label', tdLabels[ndx])
+    );
+  });
+}
+setMobileTable('table')
+</script>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#hardware-table tr th").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+<script>
+
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("techs-table");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+  </script>
+  <script>
+  var box = document.getElementById('toggleDarkMode');
+  if(box.checked = false){
+    alert('not checked');
+    localStorage.setItem('isDarkMode', false)
+  };
+</script>
+<script>
+var element1 = document.body;
+var dbtn = document.getElementById('toggleDarkMode');
+var sun = document.getElementById('sunnyBoi');
+var moon = document.getElementById('darkBoi');
+var table = document.getElementById('hardware-table');
+
+if (localStorage.getItem('isDarkMode') === 'true') {
+    element1.classList.toggle("darkMode");
+    dbtn.checked = true;
+    sun.style = 'color: #222;'
+    moon.style = 'color: #222;'
+    table.classList.toggle('darkMode');
+
+} else {
+      element1.classList.remove("darkMode");
+      dbtn.checked = false;
+      document.getElementById('hardware-table').classList.remove('darkMode');
+ 
+};
+</script>
+  <script>
+    var dbtn = document.getElementById('toggleDarkMode');
+    var element = document.body;
+    var element2 = document.getElementById('hardware-table');
+    var sun = document.getElementById('sunnyBoi');
+    var moon = document.getElementById('darkBoi');
+    function switchTheme() {
+      if(dbtn.checked){
+         element.classList.toggle("darkMode");
+         element2.classList.toggle("darkMode");
+         sun.style = 'color: #222';
+         moon.style = 'color: #222';
+         localStorage.setItem('isDarkMode', true);
+       }else{
+        element.classList.remove("darkMode");
+        element2.classList.remove("darkMode");
+        localStorage.setItem('isDarkMode', false);
+     }
+  };
+</script>
+{% endblock %}
+</html>

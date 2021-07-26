@@ -1,0 +1,25 @@
+<table id="hardware-table" class="table">
+  <thead>
+      <tr>
+        <th>Friendly</th>
+        <th>IP</th>
+        <th>MAC</th>
+        <th>Status</th>
+        <th>Software Group</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in hw %}
+    <tr>
+        
+        <td><a href="#" class="update-hardware btn btn-sm btn-primary" data-form-url="{% url 'update_hardware' d.pk %}">{{d.friendly_name}}</a></td>
+        <td>{{d.identity}}</td>
+        <td>{{d.mac}}</td>
+        <td>{{d.online}}</td>
+        <td>{{d.sgroup}}</td>
+      
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+

@@ -1,0 +1,481 @@
+{% load static %} 
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html>
+<head>  
+	
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Didact+Gothic" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Didact+Gothic" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/all.css' %}" />
+  <script src="{% static 'js/all.min.js' %}"></script>
+  <script src="{% static 'js/clipboard.min.js' %}"></script>
+ 
+  <meta charset="utf-8" content="initial-scale=1, minimum-scale=1, width=device-width" name="viewport">
+  <title>{% block title %}Hive-Bind{% endblock %}</title> 
+</head>
+<style>
+
+
+/* ----------- iPhone X ----------- */
+
+/* Portrait and Landscape */
+/*@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 812px) 
+  and (-webkit-min-device-pixel-ratio: 3) { 
+    html, body{
+    height:100%;
+    display: grid;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    font-size: 16px;
+    font-family: Didact Gothic;
+
+}
+
+/* Portrait */
+/*@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 812px) 
+  and (-webkit-min-device-pixel-ratio: 3)
+  and (orientation: portrait) { 
+    html, body{
+    height:100%;
+    display: grid;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    font-size: 16px;
+    font-family: Didact Gothic;
+
+}*/
+
+
+.darkMode{
+  color: white;
+  background-color: #222;
+
+}
+
+html, body{
+  height:100%;
+  display: grid;
+  width: 100%;
+	overflow-x: hidden;
+  overflow-y: scroll;
+	font-size: 16px;
+  font-family: Didact Gothic;
+
+
+}
+
+.containerAbout{
+  position: relative;
+  text-align: center;
+}
+.aboutMain{
+  font-size: 16px;
+  width: 90%;
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+}
+.aboutList{
+  border: none;
+  left: 25%;
+  position: absolute;
+  margin-top: 30%;
+}
+.aboutSubHeader{
+  position: absolute;
+  font-size: 16px;
+  width: 90%;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+
+}
+
+.aboutHeader{
+  position: sticky;
+  margin-bottom: 10%;
+}
+.aboutTabContent{
+  margin-top: 30%;
+}
+
+.aboutList .list-group-item{
+  border: none;
+  background-color: transparent;
+}
+table {
+  width: 100%;
+
+}
+table, td{
+  height: 50px;
+}
+.lastRow{
+  border-bottom: 2px solid #222;
+}
+
+.lastRowDark{
+  border-bottom:  2px solid #E8AF36;
+}
+
+
+.unassigned-hardware-table, tr, td{
+  border-bottom: 1px solid #ddd;
+
+}
+input[id=mymInput] {
+  margin-top: 2%;
+  margin-bottom: 2%;
+  height: 30px;
+  float: left;
+  display:block;
+  width: 30px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+  background-position: 10px 10px; 
+  background-repeat: no-repeat;
+  padding: 12px 10px 12px 20px;
+  -webkit-transition: width 0.4s ease-in-out;
+  transition: width 0.4s ease-in-out;
+
+}
+
+input[id=mymInput]:focus {
+width: 40%;
+}
+input[id=mymInput]:focus + .but{
+  display: block;
+}
+
+.myTabs{
+  position: sticky;
+  top: 0;
+  background-color: white;
+  height: 85px;
+  border-bottom: 1px solid #222;
+}
+.mySoftwareTabsMobile{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+   position: sticky;
+  top: 0;
+  background-color: white;
+  height: 85px;
+  border-bottom: 1px solid #222;
+}
+.subTab{
+  position: sticky;
+  width: 100%;
+  height: 50px;
+  top: 0;
+  background-color: white;
+}
+#addSftBtnMobile{
+  margin-top: -30%;
+}
+#addHrdBtnMobile{
+  margin-top: -30%;
+}
+.aintNoDevices{
+  
+  height: 100%;
+  font-size: 18px;
+  position: fixed;
+  margin-left: 7%;
+  margin-top: 10%;
+  padding-bottom: 100%;
+  line-height: 100px;
+  text-align: center
+}
+.aintNoSoftware{
+  
+  height: 100%;
+  font-size: 18px;
+  position: fixed;
+  margin-left: 13%;
+  margin-top: 10%;
+  padding-bottom: 100%;
+  line-height: 100px;
+  text-align: center
+}
+.confirmMe{
+  text-align: center;
+  margin-top: 5%;
+}
+.removeME{
+  font-size: 75%;
+  font-weight: bold;
+  background-color: transparent;
+}
+.assignME{
+  font-size: 75%;
+  font-weight: bold;
+  background-color: transparent;
+
+}
+.custom-control-label::before, .custom-control-label::after { top: .8rem; width: 2rem; height: 2rem; }
+#runService{
+  background-color: #222;
+  color: white;
+
+}
+#assignDevices{
+
+  background-color: #222;
+
+}
+
+.clipBtn{
+  background-color: #222;
+  color: white;
+  border: none;
+
+  margin-right: 15%;
+  
+  border-radius: 5px;
+ 
+}
+.oops{
+  margin:  auto;
+  height: 100%;
+  padding-bottom: 100%;
+  line-height: 100px;
+  text-align: center
+}
+.getCode{
+  margin: auto;
+  width: 58px;
+  height: 58px;
+  background-color: #222;
+}
+.noGroup{
+
+  border: none;
+  border-radius: 25px;
+  color: white;
+  background-color: #007bff;
+  width: 30px;
+
+}
+.modal-dialog{
+  position: absolute;
+  top: 25%;
+}
+.modal-title{
+  color: white;
+
+}.modal-header{
+  background-color: #222;
+}
+.container{
+  min-height:100%;
+  position:relative;
+}
+.fixed-bottom{
+  font-size: 38px;
+  border-top: 2px solid #222;
+  color: #222;
+  opacity: 1;
+ 
+  position:fixed;
+   bottom:0;
+   width:100%;
+   height:60px;
+  background-color: white;
+}
+
+.card1Container .card-header{
+  height: 50px;
+
+}
+.card2Container .card-header{
+  height: 50px;
+
+}
+.chart3Container{
+  height: 200%;
+}
+.card3Container .card-header{
+  height: 50px;
+
+}
+.card4Container .card-header{
+  height: 50px;
+
+}
+.rDetail{
+  float: right;
+}
+.mobilespeedChartCard{
+  margin-bottom: 10%;
+  height: 300px;
+}
+
+#nSpecsCard{
+  width: 100%;
+}
+#hSpecsCard{
+  width: 100%;
+}
+#listGroup1{
+  margin:  0;
+  width: 100%;
+}
+.app-content{
+
+}
+.card1{
+  height: 200px;
+}
+.subCardTitle i{
+  opacity: 0.8;
+  padding-bottom: 3%;
+  margin-top: 3%;  
+}
+.subCardContent{
+    border-bottom: 1px solid #222;
+    line-height: 0.1em;
+    opacity: 0.8;
+    width: 95%;
+}
+.subCardContent span{
+    color: white;
+    background-color: #222;
+    border-radius: 5px;
+    padding:0 10px;
+    margin-left: 93%;
+}
+#hStatusBtn{
+  border-bottom: 1px solid white;
+  box-shadow: none;
+    line-height: 0.1em;
+    color: white;
+    padding:0 10px;
+  border-radius: 5px;
+}
+#sGroupBtn{
+  padding:0 10px;
+  border-radius: 5px;
+  border-bottom: 1px solid white;
+    line-height: 0.1em;
+}
+#lUploadedBtn{
+  border-bottom: 1px solid white;
+    line-height: 0.1em;
+    padding:0 10px;
+  border-radius: 5px;
+}
+#headingOne{
+  background-color: #222;
+  padding:10px -25px;
+
+}
+#listGroup1{
+  display: inline-block;
+
+}
+#detailContainer{
+  padding: 1%;
+}
+#headingTwo{
+  margin-top: 2%;
+  background-color: #222;
+}
+#headingThree{
+  background-color: #222;
+  margin-top: 2%;
+}
+#softwareEdit{
+
+  margin-left: 100%;
+  float: right;
+  margin-top: -8%;
+  margin-bottom: 5%;
+  font-size: 16px;
+}
+.cardOne{
+  height: 250px;
+}
+.dashboard-hardware {
+    font-size: 13px;
+    opacity: 0.8;
+    padding-top: 1%;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+
+.dashboard-software {
+    font-size: 13px;
+    opacity: 0.8;
+    padding-top: 1%;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+}
+.dashboard-software span{
+    color: white;
+  
+  background-color: #222;
+  text-align: center;
+  border-radius: 5px;
+  padding:0px 10px ; 
+  padding-bottom: 1%;
+
+}
+#software-table{
+  border-bottom: 1px solid #222;
+}
+.dashboard-softwaredit {
+    font-size: 13px;
+    opacity: 0.8;
+    padding-top: 1%;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+}
+.dashboard-softwaredit span{
+    color: white;
+  
+  background-color: #222;
+  text-align: center;
+  border-radius: 5px;
+  padding:0px 10px ; 
+  padding-bottom: 1%;
+
+}
+
+</style>
+<body>
+  <main>
+    {% block content %}
+
+
+
+    {% endblock %}
+  </main>
+</body>
+
+</html>

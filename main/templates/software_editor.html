@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Editor</title>
+</head>
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+{{form.media}}
+<script>
+function encodeWhiteSpaces(str) {
+   return str.split('').map(function(c) {
+    if (c === ' ') 
+        return '&nbsp;'
+    else
+        return c;
+   }).join('');
+}
+
+tinyMCE.init({
+  entity_encoding: "raw",
+  protect: [
+  /[\n\f\r\t\v]/g,
+  /\<xsl\:[^>]+\>/g,
+  ],
+  
+  selector: "#id_software",
+  forced_root_block : 'pre',
+  
+  setup: function (editor) {
+    editor.on('BeforeSetContent', function (contentEvent) {
+      contentEvent.content = contentEvent.content.replace(/\r?\n/g, '<br />')
+    }),
+      editor.on('init', function (e) {
+        editor.setContent(
+          encodeWhiteSpaces(`{{lines}}`)
+          );
+        
+      });
+  },
+  plugins: "spellchecker,directionality,searchreplace,code",
+  toolbar: 'code',
+
+  
+  
+});
+
+</script>
+<body>
+  <div id="main">
+<div class="navbar navbar-inverse navbar-fixed-left">
+  <a href="/dashboard/"><img src="/media/website.logo.full.small.png" class="img-fluid"></a>
+  <ul class="nav navbar-nav">
+   
+   <li class="navy"><a href="/hardware/">Hardware</a></li>
+   <li class="navy"><a href="/software/">Software</a></li>
+   <li class="navy"><a href="#">History</a></li>
+   <li class="navy"><a href="/accounts/logout">Log Out</a></li>
+  </ul>
+</div>
+
+<div class="rightFluid container">
+<h4 class="dashboard-header">
+  <span>Software Editor</span>
+</h4>
+
+
+<div class="codePanel">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    
+    {{form}}
+    <center><button type="submit" name="saveNewCode" class="btn btn-primary editorSend"><i class="material-icons">send</i></button></center>
+
+</form>
+</div>
+
+
+</div>
+</div>
+</body>
+
+
+{% endblock %}
+</html>

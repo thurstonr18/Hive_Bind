@@ -1,0 +1,9 @@
+<form method="POST">
+{% csrf_token %}
+{% for d in devices %}
+<label for="completedUpdates" id="{{d.pk}}">{{d.pk}}</label>
+<input type="checkbox" name="completedUpdates" value="{{d.pk}}" />
+{% endfor %}
+
+<button type="submit" name="confirmUpdates">Submit</button>
+</form>

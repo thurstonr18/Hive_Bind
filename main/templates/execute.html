@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+</head>
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+<style>
+
+</style>
+
+
+
+<!--style="background-color: #297373;"-->
+<body>
+  <div id="main">
+<div class="navbar navbar-inverse navbar-fixed-left">
+  <a href="/dashboard/"><img id="hyve" src="/media/blogo.png" /></a>
+  <ul class="nav navbar-nav">
+   <li class="navy"><a href="/dashboard/">Dashboard</a></li>
+   <li class="navy"><a href="/hardware/">Hardware</a></li>
+   <li class="navy"><a href="/software/">Software</a></li>
+   <li class="navy"><a href="#">History</a></li>
+  </ul>
+</div>
+
+<div class="rightFluid container">
+<h4 class="dashboard-header">
+  <span>Hardware</span>
+</h4>
+
+
+
+
+
+
+
+
+
+
+
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script>
+  $(document).ready(function(){
+  $('[data-toggle="tooltipnone"]').tooltip();
+});
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+<script>
+  function refreshPage(){
+    location.reload();
+  }
+</script>
+ <script type="text/javascript">
+
+      $(function () {
+          var asyncSuccessMessageUpdate = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: device was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+            "<\/script>"
+          ].join("");
+
+          // modal form
+          function updateHardwareModalForm() {
+            $(".update-hardware").each(function () {
+              $(this).modalForm({
+                formURL: $(this).data("form-url"),
+                asyncUpdate: true,
+                asyncSettings: {
+                  closeOnSubmit: true,
+                  successMessage: asyncSuccessMessageUpdate,
+                  dataUrl: "/hardwares/",
+                  dataElementId: "#hardware-table",
+                  dataKey: "table",
+                  addModalFormFunction: reinstantiateModalForms
+                }
+              });
+          
+            });
+          }
+          updateHardwareModalForm();
+
+
+
+          function reinstantiateModalForms() {  
+            updateHardwareModalForm();
+          }
+
+          $("#filter-book").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url")});
+          });
+
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+  </script>
+
+
+{% for d in hw %}
+
+
+
+
+{% endfor %}
+
+{% endblock %}
+</html>

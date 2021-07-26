@@ -1,0 +1,925 @@
+{% load static %} 
+<!-- templates/base.html -->
+<!DOCTYPE html> 
+<html>
+<head>
+	
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Didact+Gothic" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+ 
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Didact+Gothic" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/all.css' %}" />
+  <script src="{% static 'js/all.min.js' %}"></script>
+  <script src="{% static 'js/clipboard.min.js' %}"></script>
+  <meta charset="utf-8" content="initial-scale=1, minimum-scale=1, width=device-width" name="viewport">
+  <title>{% block title %}Hive-Bind{% endblock %}</title>
+</head>
+<style>
+
+
+body{
+  width: 100%;
+	overflow-x: hidden;
+	font-size: 16px;
+  font-family: Didact Gothic;
+  
+}
+.deploySoftwareButton{
+  border:  none;
+  background-color: transparent;
+}
+.imgButton{
+  width: 75px;
+
+}
+.containerAbout{
+  position: relative;
+  text-align: center;
+}
+.aboutMain{
+  text-align: center;
+  font-size: 16px;
+  width: 50%;
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  top: 60%;
+  left: 47%;
+  transform: translate(-50%, -50%); 
+}
+.aboutList{
+  text-align: center;
+  border: none;
+  left: 25%;
+  position: absolute;
+  margin-top: 30%;
+}
+.aboutSubHeader{
+  position: absolute;
+  font-size: 16px;
+  text-align: center;
+  width: 50%;
+  top: 0%;
+  bottom: 15%;
+  word-wrap: break-word;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+
+}
+
+.aboutHeader{
+  position: sticky;
+  margin-bottom: 10%;
+}
+.aboutTabContent{
+  margin-top: 20%;
+  text-align: center;
+  height: 400px;
+}
+
+.aboutList .list-group-item{
+  border: none;
+  background-color: transparent;
+
+}
+.filterBtns{
+
+  margin-left: auto;
+  margin-right: auto;
+}
+#dailySpeed{
+  background-color: #222;
+}
+#allTimeSpeed{
+  background-color: #222;
+}
+#daily{
+  background-color: #222;
+}
+#allTime{
+  background-color: #222;
+}
+#runService{
+  font-size: 11px;
+  background-color: #222;
+  color: white;
+
+}
+.nSpecs{
+
+  overflow-y: scroll;
+  min-height: 450px;
+  max-height: 450px;
+ 
+}
+.hSpecs{
+  min-height: 450px;
+  max-height: 450px;
+
+
+}
+.hSpecList li{
+  width: 100%;
+  border-color: transparent;
+}
+.topRow{
+  padding-bottom: 2%;
+}
+.service0Container{
+  
+
+}
+#runService0{
+  font-size: 11px;
+  float: left;
+  background-color: #222;
+  color: white;
+  margin-left: -26%;
+
+
+
+}
+.clipBtn{
+  float: right;
+  background-color: #222;
+  color: white;
+  border: none;
+  border-radius: 5px;
+
+ 
+}
+
+
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+
+}
+.element::-webkit-scrollbar { width: 0 !important }
+#dEtails{
+  background-color: #222;
+  color: white;
+  float: right;
+
+}
+.chartRow{
+  margin-top: 3%;
+}
+#deviceTH{
+  font-size: 10px;
+}
+.rDetail{
+  float: right;
+}
+.removeGroup{
+  margin-left: 5%;
+  border: none;
+  border-radius: 25px;
+  color: white;
+  background-color: #007bff;
+  width: 30px;
+
+}
+
+.confirmMe{
+  text-align: center;
+  margin-top: 5%;
+}
+.removeME{
+  font-size: 75%;
+  font-weight: bold;
+}
+.assignME{
+  font-size: 75%;
+  font-weight: bold;
+}
+.badgeTable{
+  margin-left: 15%;
+}
+
+.navbar-fixed-left {
+  width: 140px;
+  position: fixed;
+  border-radius: 0;
+  height: 100%;
+}
+
+.navbar-fixed-left .navbar-nav > li {
+  float: none;  /* Cancel default li float: left */
+  width: 139px;
+}
+
+.navbar-fixed-left + .container {
+  padding-left: 160px;
+}
+
+/* On using dropdown menu (To right shift popuped) */
+.navbar-fixed-left .navbar-nav > li > .dropdown-menu {
+  margin-top: -50px;
+  margin-left: 140px;
+
+}
+.navy{
+  margin-bottom: 50%;
+}
+#hyve{
+  padding-right: 10px;
+  height: 100px;
+}
+.dashboard-header {
+    border-bottom: 1px solid rgba(34, 34, 34, 1);
+    margin-bottom: 45px;
+
+    position: relative;
+}
+
+.dashboard-hardware {
+    font-size: 13px;
+    opacity: 0.8;
+    border-bottom: 1px solid rgba(34, 34, 34, 0.5);
+    
+    margin-bottom: 45px;
+    line-height: 0.1em;
+    position: relative;
+    text-align: center;
+}
+.dashboard-hardware span i{
+  color: white;
+  background-color: #222;
+  text-align: center;
+  border-radius: 5px;
+  padding:0 10px; 
+}
+
+.dashboard-software {
+    font-size: 13px;
+    opacity: 0.8;
+    text-align: center;
+    border-bottom: 1px solid rgba(34, 34, 34, 0.5);
+    margin-bottom: 45px;
+    margin-top: 5%;
+    line-height: 0.1em;
+    position: relative;
+}
+.dashboard-software span i{
+    color: white;
+    background-color: #222;
+    text-align: center;
+    border-radius: 5px;
+    padding:0 10px; 
+
+}
+
+
+.piSpeed {
+    border-bottom: 1px solid #222;
+    float: right;
+    padding-top: 2%;
+    line-height: 0.1em;
+    opacity: 0.8;
+    width: 95%;
+}
+.piSpeed span {
+  float: right;
+}
+.piSpeed span i{
+  font-size: 13px;
+  color: white;
+  background-color: #222;
+  border-radius: 5px;
+  padding:0 10px;
+}
+
+.piSpecs {
+    border-bottom: 1px solid #222;
+    float: right;
+    padding-top: 2%;
+    line-height: 0.1em;
+    opacity: 0.8;
+    width: 95%;
+}
+.piSpecs span {
+  float: right;
+}
+.piSpecs span i{
+  font-size: 13px;
+  color: white;
+  background-color: #222;
+  border-radius: 5px;
+  padding:0 10px;
+}
+
+.editorSend{
+  background-color: #222;
+
+}
+.lastUploadedHeader {
+    border-bottom: 1px solid #222;
+    float: right;
+    margin-right: 35%;
+    padding-top: 2.3%;
+    line-height: 0.1em;
+    opacity: 0.8;
+    max-width: 40%;
+    min-width: 40%;
+}
+.lastUploadedHeader span {
+  float: right;
+}
+.lastUploadedHeader span i{
+  font-size: 13px;
+  color: white;
+  background-color: #222;
+  border-radius: 5px;
+  padding:0 10px;
+}
+
+
+
+
+.piLDevices {
+    border-bottom: 1px solid #222;
+    float: right;
+    padding-top: 1.5%;
+    line-height: 0.1em;
+    opacity: 0.8;
+    width: 96%;
+}
+.piLDevices span {
+  float: right;
+}
+.piLDevices span i{
+  font-size: 13px;
+  color: white;
+  background-color: #222;
+  border-radius: 5px;
+  padding:0 10px;
+}
+.piSpecs2 {
+    border-bottom: 1px solid #222;
+    float: right;
+    padding-top: 3%;
+    line-height: 0.1em;
+    opacity: 0.8;
+    width: 91%;
+}
+.piSpecs2 span {
+  float: right;
+}
+.piSpecs2 span i{
+  font-size: 13px;
+  color: white;
+  background-color: #222;
+  border-radius: 5px;
+  padding:0 10px;
+}
+
+.hardAnchor{
+  font-size: 16px;
+  background-color: #222;
+  color: #E8AF36;
+
+}
+.hardAnchorVersion{
+  font-size: 12px;
+  background-color: #222;
+  color: white;
+  font-style: normal;
+
+}
+.noGroup{
+
+  border: none;
+  border-radius: 25px;
+  background-color: #222;
+  color: #E8AF36;
+  width: 30px;
+  margin-left: 20%;
+}
+.hardwareRow{
+  margin-bottom:  0%;
+}
+#hardwareCard1{
+  min-height: 230px;
+  max-height: 230px;
+}
+.osCard{
+  min-height: 230px;
+  max-height: 230px;
+  overflow-y: scroll;
+}
+.subCardTitle i{
+  opacity: 0.8;
+  padding-bottom: 3%;
+  float: left;
+   
+}
+.subCardContent{
+
+    border-bottom: 1px solid #222;
+
+    line-height: 0.1em;
+    opacity: 0.8;
+
+
+    
+}
+.subCardContent span{
+
+    color: white;
+    background-color: #222;
+    border-radius: 5px;
+    padding:0 10px;
+    margin-left: 90%;
+  
+}
+
+.subCardLogin{
+    border-bottom: 1px solid #222222;
+    line-height: 0.2em;
+    padding-top: 2%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    opacity: 0.8;
+    width: 90%;
+}
+.subCardLogin span{
+    
+    color: white;
+    background-color: #222;
+    border-radius: 5px;
+    padding:0 10px;
+    padding-top: 2%;
+    padding-bottom: 1%;
+    min-height: 70px;
+}
+#loginForm {
+  display: inline-block;
+  text-align: center;
+
+  
+}
+#loginCheck{
+  text-align: center;
+  justify-content: center;
+
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #222;
+  border-radius: 5px;
+}
+
+input[name="username"]{
+
+  text-align: center;
+  border: transparent;
+  border-bottom: 1px solid #222;
+
+}
+input[name="username"]:focus{
+
+  text-align: center;
+  border: transparent;
+  outline: none;
+  border-bottom: 1px solid #222;
+}
+input[name="password"]{
+
+  text-align: center;
+  border: transparent;
+  border-bottom: 1px solid #222;
+
+}
+input[name="password"]:focus{
+  
+  text-align: center;
+  border: transparent;
+   outline: none;
+  border-bottom: 1px solid #222;
+}
+
+label[for="id_username"]{
+
+  display: none;
+}
+label[for="id_password"]{
+  display: none;
+}
+
+#deviceCountAll{
+  width: 100%;
+  height: 100%;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+#softwareCountAll{
+  width: 100%;
+  height: 100%;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+
+.myButton {
+    padding: .2em 1em;
+    font-size: 1em;
+}
+.mySelect {
+    padding: .2em 0;
+    font-size: 1em;
+}
+#myDiv {
+    color:Green;
+    background-color:#eee;
+    border:2px solid #333;
+    display:none;
+    text-align:justify;
+}
+#myDiv p {
+    margin: 15px;
+    font-size: 0.917em;
+}
+
+.container{
+  margin: 0;
+}
+.update-hardware{
+  font-size: 16px;
+}
+
+#main .rightFluid.container {
+    grid-area: main;
+    overflow: auto;
+    margin-left: 0;
+    min-width: 1500px;
+
+
+    border-left: none;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding-bottom: 0;
+
+}
+
+#myBoundModal{
+  width: 100%;
+}
+#myBoundTable{
+  width: 100%;
+}
+.modal-title{
+  color: white;
+}
+#assignDevices{
+ 
+  background-color: #222;
+
+}
+sup {
+    top: -.5em;
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
+
+}
+.update-software{
+  font-size: 16px;
+}
+.update-hardware{
+  font-size: 16px;
+}
+#addSoftware{
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 70%;
+  margin-top: 4%;
+  margin-right: 5%;
+  height: 50%;
+  width: 20%;
+  box-shadow: none;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  padding-left: 5%;
+  border-left: 1px solid #222;
+}
+#addSftBtn{
+  position: absolute;
+  top: 20%;
+  box-shadow: none;
+  border-color: #222;
+  height: 100px;
+  width: 60%;
+  color: #222;
+  font-size: 16px;
+  background-color: transparent;
+  border-radius: 5px;
+  opacity: ;
+
+
+}
+#addHardware{
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 70%;
+  margin-top: 3%;
+  margin-right: 5%;
+  height: 50%;
+  width: 20%;
+  box-shadow: none;
+  border-top: none;
+  border-right: none;
+  padding-left: 5%;
+  /*border-left: 1px solid #222;*/
+  height: 25%;
+  border-bottom: none;
+}
+#dloadHardware{
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 70%;
+  margin-top: 15%;
+  margin-right: 5%;
+  width: 20%;
+  box-shadow: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  padding-left: 5%;
+  border-left: 1px solid #222;
+}
+#addHrdBtn{
+  position: absolute;
+  top: 20%;
+  box-shadow: none;
+  border-color: #222;
+  height: 100px;
+  width: 60%;
+  color: #222;
+  font-size: 16px;
+  background-color: transparent;
+  border-radius: 5px;
+
+}
+#dloadHrdBtn{
+  position: absolute;
+  top: 30%;
+  box-shadow: none;
+  border-color: #222;
+  height: 100px;
+  width: 60%;
+  color: #222;
+  font-size: 16px;
+  background-color: transparent;
+
+
+}
+
+
+.rightFluid {
+
+    padding: 30px;
+
+}
+
+.devicePanelAll{
+
+  width: 100%;
+  height: 250px;
+  padding: 25%;
+  text-align: center;
+  border: 1px solid rgba(34, 34, 34, .30);
+}
+canvas{
+  width:98% !important;
+
+}
+#dHead{
+  font-size: 12px;
+}
+.devicePanelOn{
+
+  width: 100%;
+  height: 250px;
+  padding: 3%;
+  border: 1px solid rgba(34, 34, 34, .30);
+}
+#onHead{
+  font-size: 12px;
+}
+.devicePanelOff{
+
+  width: 100%;
+  height: 250px;
+  padding: 3%;
+  border: 1px solid rgba(34, 34, 34, .30);
+}
+#offHead{
+  font-size: 12px;
+}
+#btnAdd i{
+  font-size: 100px;
+  color: #787878;
+
+ 
+  
+}
+#btnAdd :hover{
+  
+  font-size: 100px;
+ 
+  opacity: 1;
+  color: #222;
+
+}
+#btnAddSoft i{
+  font-size: 100px;
+  color: #787878;
+}
+#btnAddSoft :hover{
+  font-size: 100px;
+  opacity: 1;
+  color: #222;
+
+}
+.smallPush{
+  background-color: #222;
+  color: white;
+  font-size: 16px;
+}
+.getCode{
+  margin: auto;
+  width: 58px;
+  height: 58px;
+  background-color: #222;
+}
+#hrdDownloadBtn{
+  margin-left: auto;
+}
+.modal-header{
+	background-color: #222;
+}
+
+.container-fluid{
+	float: right;
+	display: inline-block;
+	
+	width: 30%;
+	margin-top: -14.5%;
+
+}
+.getWindowsCode{
+  float: left;
+  font-size: 32px;
+  color: white;
+  background-color: #222;
+  margin-left: 15%;
+
+}
+.getLinuxCode{
+  float: right;
+  font-size: 32px;
+  color: white;
+  background-color: #222;
+  margin-right: 18%;
+  border-left: 1px #222;
+}
+.nav-tabs{
+  width: 80%;
+}
+.tab-content{
+  width: 80%;
+}
+.table{
+  width: 100%;
+
+}
+
+.myContainer{
+	margin-left: 7%;
+	padding: 30px;
+	width: 100%;
+}
+.myContainer #tabulate{
+	
+	width: 150%;
+}
+
+
+  
+#id_version, #id_name, #id_destination, #id_software{
+  font-size: 16px;
+  position: relative;
+}
+#id_software{
+  height: 40px;
+}
+#softwareCheck, #softwareEdit{
+  font-size: 16px;
+  background-color: #222;
+  color: white;
+  
+  
+}
+#softwareEdit{
+  position: absolute;
+  right: 1%;
+  top:  2%;
+}
+#software-clear_id{
+  display: none;
+}
+label[for="software-clear_id"]{
+  display: none;
+
+}
+
+#id_friendly_name, #id_identity, #id_mac, #id_sgroup{
+  font-size: 16px;
+}
+#id_sgroup{
+  height: 40px;
+}
+#hardwareCheck{
+
+  background-color: #222;
+  color: white;
+}
+
+#id_nic, #id_nic2, #id_gputemp, #id_cputemp, #id_online, #id_identity, #id_mac{
+  display: none;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+label[for="id_nic"], label[for="id_nic2"], label[for="id_gputemp"], label[for="id_cputemp"], label[for="id_online"], label[for="id_identity"], label[for="id_mac"]{
+  display: none;
+}
+
+</style>
+<body>
+  <main>
+    {% block content %}
+
+
+
+    <script>
+    var $el = $("#main");
+    var elHeight = $el.outerHeight();
+    var elWidth = $el.outerWidth();
+
+    var $wrapper = $("#scaleable-wrapper");
+
+    $wrapper.resizable({
+      resize: doResize
+    });
+
+    function doResize(event, ui) {
+      
+      var scale, origin;
+        
+      scale = Math.min(
+        ui.size.width / elWidth,    
+        ui.size.height / elHeight
+      );
+      
+      $el.css({
+        transform: "translate(-50%, -50%) " + "scale(" + scale + ")"
+      });
+      
+    }
+
+    var starterData = { 
+      size: {
+        width: $wrapper.width(),
+        height: $wrapper.height()
+      }
+    }
+    doResize(null, starterData);
+    </script>
+    {% endblock %}
+  </main>
+</body>
+
+</html>

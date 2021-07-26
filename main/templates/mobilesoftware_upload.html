@@ -1,0 +1,749 @@
+ <!DOCTYPE html>
+<html>
+<head>
+	<title>Software</title>
+</head>
+
+{% extends 'mobilebase.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include '_modal.html' %}
+<style>
+/*
+th, td {background: #eee; padding: 8px}
+
+
+
+
+table thead {
+  display: none;
+}
+
+
+
+table tr {
+  margin-bottom: 8px;
+
+}
+
+table td {
+  display: flex;
+
+}
+
+table td::before {
+  content: attr(label);
+  font-weight: bold;
+  width: 120px;
+  min-width: 120px;
+}
+*/
+
+
+
+
+</style>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}">
+
+<script>
+$( document ).ready(function() {
+  $("#box").load("/{{lsoft}}");
+});
+</script>
+
+
+<body>
+  <div class="container">
+    <div class="mySoftwareTabsMobile">
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+	  <li class="nav-item" role="presentation">
+	    <a class="nav-link active" id="all-tab" href="#allSW" data-toggle="tab" role="tab" aria-selected="true">All</a>
+	  </li>
+
+	  <li class="nav-item" role="presentation">
+	    <a class="nav-link" id="assigned-soft" href="#assignedSW" data-toggle="tab" role="tab" aria-selected="true">Assigned</a>
+	  </li>
+
+	  <li class="nav-item" role="presentation">
+	    <a class="nav-link" id="unassigned-soft" href="#unassignedSW" data-toggle="tab" role="tab" aria-controls="unassignedSW" aria-selected="false">Unassigned</a>
+	  </li>
+
+	  <li class="nav-item" role="presentation">
+	    <a class="nav-link" id="push-SW" href="#pushSW" data-toggle="tab" role="tab" aria-controls="pushSW" aria-selected="false">Push</a>
+	  </li>
+
+	</ul>
+	<span class="subTab">
+	<img src="/media/searchicon.png" width="25" style="float: left; padding: 1%; margin-top: 2%;"><input type="text" name="search" id="mymInput" placeholder="Search">
+
+	<div class="drkModeSwitch">
+	<i class="small material-icons sunnyBoi" id="sunnyBoi">wb_sunny</i>
+	<label class="switch">
+	  <input type="checkbox" id="toggleDarkMode" onclick="switchTheme()">
+	  <span class="slider round"></span>
+	</label>
+	<i class="fas fa-moon fa-xs" id="darkBoi"></i>
+	</div>
+	</span>
+	</div>
+
+
+
+
+
+<div class="tab-content">
+
+{% if software %}
+
+<div class="tab-pane fade show active" id="allSW" role="tabpanel" aria-labelledby="all-soft">
+<table id="software-table" class="table">
+	<tbody>
+		{% for d in software %}
+      	<tr>
+        	<th>Name</th>
+        	<td><button name="{{d.pk}}" class="update-software btn btn-sm btn-primary" id="mmmodal" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+    	</tr>
+    	<tr>
+        	<th>Version</th>
+        	<td>{{d.version}}</td>
+    	</tr>
+    	<tr>
+    		<th>Status</th>
+    		<td>{{d.status|yesno:"assigned,unassigned"}}</td>
+    	</tr>
+       	<tr>
+       		<th>Bound Devices</th>
+       		{% if d.devices.all|length == 0 %}
+	        <td><a href="#" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable">{{d.devices.all|length}}</span></a></td>
+	        {% else %}
+	        <td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable">{{d.devices.all|length}}</span></a></td>
+	        {% endif %}
+       	</tr>
+       	<tr>       
+        	<th>Destination</th>
+        	<td>{{d.destination}}</td>
+    	</tr>
+  		{% endfor %}
+  </tbody>
+</table>
+</div>  
+
+
+
+<div class="tab-pane fade" id="assignedSW" role="tabpanel" aria-labelledby="assigned-soft">
+
+<table id="software-table" class="table">
+  <tbody>
+  	{% for d in software %}
+  	{% if d.status == True %}
+      	<tr>
+        	<th>Name</th>
+        	<td><button class="update-software btn btn-sm btn-primary" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+    	</tr>
+    	<tr>
+    		<th>Version</th>
+    		<td>{{d.version}}</td>
+    	</tr>
+    	<tr>
+    		<th>Status</th>
+    		<td>{{d.status|yesno:"assigned,unassigned"}}</td>
+    	</tr>
+    	<tr>
+    		<th>Bound Devices</th>
+    		<td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable">{{d.devices.all|length}}</span></a></td>
+    	</tr>
+    	<tr>
+    		<th>Destination</th>
+    		<td>{{d.destination}}</td>
+
+    	</tr>
+   {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+
+
+<div class="tab-pane fade" id="unassignedSW" role="tabpanel" aria-labelledby="unassigned-soft">
+
+
+  <table id="unassigned-software-table" class="table">
+  	<tbody>
+  	{% for d in software %}
+  	{% if d.status == False %}
+      	<tr>
+	        <th>Name</th>
+	        <td><button class="update-software btn btn-sm btn-primary" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+        </tr>
+        <tr>
+        	<th>Version</th>
+        	<td>{{d.version}}</td>
+        </tr>  
+        <tr>
+	        <th>Status</th>
+	        <td>{{d.status|yesno:"assigned,unassigned"}}</td>
+	    </tr>
+	    <tr>
+	        <th>Bound Devices</th>
+	        <td><a href="#" data-toggle="modal" data-target="#myUnboundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable">{{d.devices.all|length}}</span></a></td>
+	    </tr>
+	        <th>Destination</th>
+	        <td>{{d.destination}}</td>
+    	<tr>
+
+	{% endif %}
+	{% endfor %}
+  </tbody>
+</table>
+
+      
+  
+</div>
+
+<div class="tab-pane fade" id="pushSW" role="tabpanel" aria-labelledby="push-SW">
+
+<table id="push-software-table" class="table">
+	<tbody>
+	{% for d in software %}
+	{% if d.status == True %}
+      	<tr>
+        	<th>Name</th>   
+        	<td><button class="update-software btn btn-sm btn-primary" data-form-url="{% url 'update_software' d.pk %}">{{d.name}}</button></td>
+		</tr>
+		<tr>
+        	<th>Version</th>
+        	<td>{{d.version}}</td>
+    	</tr>
+    	<tr>
+    		<th>Status</th>
+    		<td>{{d.status|yesno:"assigned,unassigned"}}</td>
+    	</tr>
+        <tr>
+        	<th>Bound Devices</th>
+        	<td><a href="#" data-toggle="modal" data-target="#myBoundModal{{d.pk}}"><span class="badge badge-pill badge-primary badgeTable">{{d.devices.all|length}}</span></a></td>
+        </tr>
+        <tr>
+        	<th>Destination</th>
+        	<td>{{d.destination}}</td>
+        </tr>
+        <tr>
+        	<th>Deploy</th>
+        	<td><button type="submit" class="btn btn-sm btn-primary smallPush" name="masterPush" data-toggle="modal" data-target="#confirmDeploy{{d.pk}}"><i class="material-icons">send</i></button></td>
+        </tr>
+  	{% endif %}
+  	{% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+
+
+
+<center>
+<div class="aintNoSoftware">No Software Groups created yet!<br>
+	<p style="font-size: 13px">Upload software to begin setting up a group.</p>
+<button id="addSftBtnMobile" type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#mySoftModal">Upload<br><i class="material-icons">upload</i></button>
+</div>
+</center>
+{% endif %}
+
+</div>
+ 
+
+
+ <footer class="fixed-bottom" style="background-color: white">
+    <div class="row fixed-row-bottom">   
+
+        <div class="col align-self-center">
+          <a href="/dashboard/">
+            <img src="/media/website.logo.solid.png" width="45" style="margin-left: 14%;margin-bottom: 12%">
+
+            
+            <!--<img src="/media/website.logo.small.black.png" style="padding-bottom: 15%">-->
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/hardware/">
+            <img src="/media/hammer.png" width="52" height="42" style="margin-bottom: 13%; padding-right: 2%;">
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/software/">
+            <img src="/media/disc.png" width="50" height="50" style="margin-left: 4%; margin-bottom: 6%;">
+          </a>
+      </div>
+
+      <div class="col align-self-center">
+          <a href="#">
+            <img src="/media/hourglass.png" width="30" height="42" style="margin-left: 35%; margin-bottom: 9%">
+          </a>
+      </div>
+ 
+      <div class="col align-self-center">
+          <a href="/accounts/logout">
+            <img src="/media/exit.png" width="50" height="52" style="margin-bottom: 4%">
+          </a>
+      </div>
+
+  </div>
+</footer>
+
+</div> 
+</body>
+
+
+<div class="modal fade" id="mySoftModal">
+  <div class="modal-dialog ">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Upload software to Hive</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{form.as_p}}
+
+
+          <br>
+          <br>
+          <br>
+          <center><button type="submit" class="btn btn-submit getCode" name="addNewSoftware"><i class="material-icons" style="font-size: 32px; color: white;">upload</i></button></center>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for s in software %}
+<!-- The Modal -->
+<div class="modal fade" id="myBoundModal{{s.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Devices in <i style="text-decoration: underline;">{{s.name}}</i></h4>
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          
+          {% for d in s.devices.all %}
+ 
+            <tr>
+                <td>{{d.friendly_name}}</td>
+                <td>{{d.identity}}</td>
+                <td>{{d.mac}}</td>
+                <td>{{d.get_online_display}}</td> 
+            </tr>
+      
+       
+          {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% for f in software %}
+<div class="modal fade" id="myUnboundModal{{f.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Currently no devices in this Group</h4>
+        <br>
+
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <h5>Would you like to assign some?</h5>
+        <form method="post">
+          {% csrf_token %}
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          {% for s in udevices %}
+          
+            <tr>
+                <td><label><input type="checkbox" name="fname" value="{{s.pk}}">&nbsp;&nbsp;{{s.friendly_name}}</label></td>
+                <td>{{s.identity}}</td>
+                <td>{{s.mac}}</td>
+                <td>{{s.get_online_display}}</td>           
+            </tr>
+          {% endfor %}
+         
+          </tbody>
+        </table>
+        
+      </div>
+
+      <div class="modal-footer">
+        <span id="assignDevices"><button type="submit" class="btn btn-submit" name="assignDevices" value="{{f.pk}}"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% for s in software %}
+<form method="post">
+<!-- The Modal -->
+<div class="modal fade" id="confirmDeploy{{s.pk}}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" >
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        
+        <h4 class="modal-title"><center><strong class="confirmation">{{s.name}} version {{s.version}}</strong></center></h4>
+        
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        
+        <table id="myBoundTable" class="table">
+          <thead>
+              <tr>
+                <th>Friendly</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>Status</th>
+               
+              </tr>
+            </thead>
+          <tbody>
+          <input type="hidden" name="softwarePK" value="{{s.pk}}" />
+          {% for d in s.devices.all %}
+            
+            <tr>
+                <input type="hidden" name="devicePK" value="{{d.pk}}" />
+                <td>{{d.friendly_name}}</td>
+                <td>{{d.identity}}</td>
+                <td>{{d.mac}}</td>
+                <td>{{d.get_online_display}}</td> 
+            </tr>
+      
+       
+          {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+
+      <center><p class="confirmMe">You are about to send <strong>{{s.name}} v{{s.version}}</strong> to these devices.<br><i>Do you wish to continue?</i></p></center>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-submit getCode" name="masterPush"><i class="material-icons" style="font-size: 32px; color: white;">check</i></button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endfor %}
+
+
+
+
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+
+  <script type="text/javascript">
+
+      $(function () {
+          var asyncSuccessMessageUpdate = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: device was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+            "<\/script>"
+          ].join("");
+
+          // modal form
+          function updateHardwareModalForm() {
+            $(".update-hardware").each(function () {
+              $(this).modalForm({
+                formURL: $(this).data("form-url"),
+                asyncUpdate: true,
+                asyncSettings: {
+                  closeOnSubmit: true,
+                  successMessage: asyncSuccessMessageUpdate,
+                  dataUrl: "/hardwares/",
+                  dataElementId: "#hardware-table",
+                  dataKey: "table",
+                  addModalFormFunction: reinstantiateModalForms
+                }
+              });
+          
+            });
+          }
+          updateHardwareModalForm();
+
+
+
+          function reinstantiateModalForms() {  
+            updateHardwareModalForm();
+          }
+
+          $("#filter-book").each(function () {
+              $(this).modalForm({formURL: $(this).data("form-url")});
+          });
+
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+  </script>
+  <script>
+
+$('#clipBtn').tooltip({
+  trigger: 'click',
+  placement: 'top'
+});
+
+function setTooltip(message) {
+  $('#clipBtn').tooltip('hide')
+    .attr('data-original-title', message)
+    .tooltip('show');
+}
+
+function hideTooltip() {
+  setTimeout(function() {
+    $('#clipBtn').tooltip('hide');
+  }, 1000);
+}
+
+var clipboard = new ClipboardJS('.clipBtn', {
+    container: document.getElementById('modal')
+});
+clipboard.on('success', function(e) {
+  setTooltip('Copied!');
+  hideTooltip();
+});
+
+clipboard.on('error', function(e) {
+  setTooltip('Failed!');
+  hideTooltip();
+});
+</script>
+
+<script>
+  $(document).ready(function(){
+  $('[data-toggle="tooltipnone"]').tooltip();
+});
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+ <script>
+// listen for clicks to active nav
+$(document).on('click', '.nav-link.active', function(selector) {
+  const tableEl = document.querySelector(selector);
+  const thEls = tableEl.querySelectorAll('thead th');
+  const tdLabels = Array.from(thEls).map(el => el.innerText);
+  tableEl.querySelectorAll('tbody tr').forEach( tr => {
+    Array.from(tr.children).forEach( 
+      (td, ndx) =>  td.setAttribute('label', tdLabels[ndx])
+    );
+ 
+  hideTab($(this))
+});
+});
+</script>
+<script>
+ 
+window.setMobileTable = function(selector) {
+  // if (window.innerWidth > 600) return false;
+  const tableEl = document.querySelector(selector);
+  const thEls = tableEl.querySelectorAll('thead th');
+  const tdLabels = Array.from(thEls).map(el => el.innerText);
+  tableEl.querySelectorAll('tbody tr').forEach( tr => {
+    Array.from(tr.children).forEach( 
+      (td, ndx) =>  td.setAttribute('label', tdLabels[ndx])
+    );
+  });
+}
+setMobileTable('table')
+</script>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#hardware-table tr th").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+<script>
+
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("techs-table");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+  </script>
+  <script>
+  var box = document.getElementById('toggleDarkMode');
+  if(box.checked = false){
+    alert('not checked');
+    localStorage.setItem('isDarkMode', false)
+  };
+</script>
+<script>
+var element1 = document.body;
+var dbtn = document.getElementById('toggleDarkMode');
+var sun = document.getElementById('sunnyBoi');
+var moon = document.getElementById('darkBoi');
+var table = document.getElementById('hardware-table');
+
+if (localStorage.getItem('isDarkMode') === 'true') {
+    element1.classList.toggle("darkMode");
+    dbtn.checked = true;
+    sun.style = 'color: #222;'
+    moon.style = 'color: #222;'
+    table.classList.toggle('darkMode');
+
+} else {
+      element1.classList.remove("darkMode");
+      dbtn.checked = false;
+      document.getElementById('hardware-table').classList.remove('darkMode');
+ 
+};
+</script>
+  <script>
+    var dbtn = document.getElementById('toggleDarkMode');
+    var element = document.body;
+    var element2 = document.getElementById('hardware-table');
+    var sun = document.getElementById('sunnyBoi');
+    var moon = document.getElementById('darkBoi');
+    function switchTheme() {
+      if(dbtn.checked){
+         element.classList.toggle("darkMode");
+         element2.classList.toggle("darkMode");
+         sun.style = 'color: #222';
+         moon.style = 'color: #222';
+         localStorage.setItem('isDarkMode', true);
+       }else{
+        element.classList.remove("darkMode");
+        element2.classList.remove("darkMode");
+        localStorage.setItem('isDarkMode', false);
+     }
+  };
+</script>
+{% endblock %}
+</html>

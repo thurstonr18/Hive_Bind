@@ -1,0 +1,583 @@
+ <!DOCTYPE html>
+<html> 
+<head>
+	<title>Dashboard</title>
+
+</head>
+
+{% extends 'mobilebase.html' %}
+
+{% load static %}
+
+{% block content %}
+  
+  <link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css"/><script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
+<script src="{% static 'js/bootstrap4.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
+
+
+{% include '_modal.html' %}
+<style>
+input[id=cmd-text] {
+  pointer-events: none;
+ }
+input[name=cmdText] {
+    pointer-events: none;
+   }
+</style>
+
+
+
+<!--style="background-color: #297373;"-->
+<body>
+	<div class="container" id="detailContainer" style="position: absolute;">
+
+
+<!-- ROW 1  --> 	
+
+	<div class="card1Container">
+	  <div class="card" id="hSpecsCard">
+		<div class="card-header">
+      		<i class="material-icons">build</i>
+  		</div>
+  		<div class="card-body" >
+
+  			<ul class="list-group" id="listGroup1">
+		        {% for i in mydevice %}
+		        <li class="list-group-item"><strong>{{i.friendly_name}}</strong>{% if i.online == '1' %}<strong><p class="rDetail" style="color: green">{{i.get_online_display}}</p></strong>{% else %}<p class="rDetail" style="color: red">{{i.get_online_display}}</p>{% endif %}</li>
+		  
+
+		        <li class="list-group-item">CPU:   <p class="rDetail">{{i.cpu_usage}}%</p></li>
+		        <li class="list-group-item">RAM:   <p class="rDetail">{{i.memory}}%</p></li>
+            {% if 'Windows' not in i.operating_system %}
+            <li class="list-group-item">CPU temp: <p class="rDetail">{{i.cputemp|cut:"'"|cut:"F"}}°F</p></li>
+            <li class="list-group-item">GPU temp: <p class="rDetail">{{i.gputemp|cut:"'"|cut:"F"}}°F</p></li>
+            <li class="list-group-item">Core voltage: <p class="rDetail">{{i.voltage|cut:"volt="}}</p></li>
+            {% endif %}
+		        <li class="list-group-item">
+		          <table class="table" id="systemTable">
+		            <thead id="deviceTH">
+		              <th>NIC</th>
+		              <th>IP</th>
+		              <th>MAC</th>
+		            </thead>
+		            <tbody>
+		              <tr>
+		                <td>{{i.nic}}</td>
+		                {% if i.identity is not None %}
+		                <td>{{i.identity}}</td>
+		                {% else %}
+		                <td style="font-size: 10px; color: red"><i>Disconnected</i></td>
+		                {% endif %}
+		                <td>{{i.mac}}</td>
+		              </tr>
+		              <tr>
+		                {% if i.nic2 is not None %}
+                    <td>{{i.nic2}}</td>
+                    {% if i.identity2 is not None %}
+                    <td>{{i.identity2}}</td>
+                    {% else %}
+                    <td style="font-size: 10px; color: red"><i>Disconnected</i></td>
+                    {% endif %}
+                    <td>{{i.mac2}}</td>
+                    {% endif %}
+		              </tr>
+
+		            </tbody>
+		          </table>
+		        </li>
+		        {% endfor %}
+	      </ul>
+		</div>
+  	</div>
+  </div>
+
+
+
+
+
+<!-- ROW 2  -->
+
+	<div class="card2Container">
+	  <div class="card">
+	    <div class="card-header">
+	      <i class="material-icons">router</i>
+	      </div>
+	      <div class="card-body"  id="nSpecsCard">
+	        <ul class="list-group">
+	          <li class="list-group-item">
+	            <table class="table" id="localDeviceTable">
+	              <tbody>
+	              	{% for a, b, c in mlocal %}
+	                {% ifchanged b %}
+	              	<tr>
+	               		<th>Name</th>
+	               		<td>{{a}}</td> 	
+           		 	</tr>
+           		 	<tr>
+           		 		<th>MAC</th>
+           		 		<td>{{b}}</td>
+           		 	</tr>
+           		 	<tr style="border-bottom: 2px solid #222">
+           		 		<th>IP</th>
+           		 		<td>{{c}}</td>
+           		 	</tr>
+	                {% endifchanged %}
+	                {% endfor %}
+	              </tbody>
+	            </table>
+	          </li>
+	        </ul>
+	      </div>    
+	  </div>
+	</div>
+
+
+
+
+
+<!-- ROW 3  -->
+<div class="card3Container">
+	<div class="card mobilechartCard" id="mobilechartCard">
+      <div class="card-header">
+        <i class="material-icons">show_chart</i>
+      </div>
+      <div class="card-body">
+        <canvas id="mobilepiChart"></canvas>
+        <center>
+        <button class="btn btn-primary" id="daily" type="button">today</button>
+        <button class="btn btn-primary" id="allTime" type="button">all</button>
+      </center>
+      </div>
+    </div>
+</div>
+
+
+
+
+<!-- ROW 4  -->
+	<div class="card4Container">
+		  <div class="card mobilespeedChartCard">
+		    <div class="card-header">
+		      <i class="material-icons">network_check</i>
+		    </div>
+		    
+		      <div class="card-body">
+		        <canvas id="mobilespeedChart"></canvas>
+		 
+		          <center>
+		        <button class="btn btn-primary" id="dailySpeed" type="button">today</button>
+		        <button class="btn btn-primary" id="allTimeSpeed" type="button">all</button>
+		      </center>
+		      
+		        <!--<form method="POST" id="post-form">
+		          <input type="text" id="cmd-text" />
+		          <input type="submit" name="cmdText">
+		      </form>
+		      <div id="results"></div>-->
+		      </div>
+		    
+		  </div>
+
+	</div>
+
+
+
+
+
+
+
+
+ <footer class="fixed-bottom" style="background-color: white">
+    <div class="row fixed-row-bottom">   
+
+        <div class="col align-self-center">
+          <a href="/dashboard/">
+            <img src="/media/website.logo.solid.png" width="45" style="margin-left: 14%;margin-bottom: 12%">
+
+            
+            <!--<img src="/media/website.logo.small.black.png" style="padding-bottom: 15%">-->
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/hardware/">
+            <img src="/media/hammer.png" width="52" height="42" style="margin-bottom: 13%; padding-right: 2%;">
+          </a>
+        </div>
+
+        <div class="col align-self-center">
+          <a href="/software/">
+            <img src="/media/disc.png" width="50" height="50" style="margin-left: 4%; margin-bottom: 6%;">
+          </a>
+      </div>
+
+      <div class="col align-self-center">
+          <a href="#">
+            <img src="/media/hourglass.png" width="30" height="42" style="margin-left: 35%; margin-bottom: 9%">
+          </a>
+      </div>
+ 
+      <div class="col align-self-center">
+          <a href="/accounts/logout">
+            <img src="/media/exit.png" width="50" height="52" style="margin-bottom: 4%">
+          </a>
+      </div>
+
+  </div>
+</footer>
+
+
+
+  </div>
+</body>
+
+
+
+
+<script>
+  $(document).ready(function(){
+  $('[data-toggle="tooltipnone"]').tooltip();
+});
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+<script>
+  function refreshPage(){
+    location.reload();
+  }
+</script>
+ <script type="text/javascript">
+  var token = '{{csrf_token}}';
+function send_call() {
+     $.ajax({
+        headers: { "X-CSRFToken": token },
+        url: '/ajax_call/',
+        type : "POST", // http method
+        data : { "cmd" : $('#cmd-text').val() }, // data sent with the post request
+        dataType: 'json',
+        // handle a successful response
+        success : function(json) {
+            $('#cmd-text').val(''); // remove the value from the input
+            $("#results").prepend("<li>"+json.output_call+"</li>");
+        },
+        // handle a non-successful response
+        error : function(xhr,errmsg,err) {
+            $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+};
+
+$('#post-form').on('submit', function(event){
+    event.preventDefault();
+    console.log("form submitted!")  // sanity check
+    send_call()
+}); 
+  </script>
+
+
+{% for d in hw %}
+{% endfor %}
+
+
+<script src="{% static 'js/Chart.js' %}"></script>
+{% if myos != 'Windows' %}
+
+<script>
+
+var mData = {{dlabels|safe}};
+var dcpu = {{dcpu|safe}};
+var dmemory = {{dmemory|safe}};
+var dcputemp = {{dcputemp|safe}};
+var dgputemp = {{dgputemp|safe}};
+var options = {
+  type: 'line',
+  responsive: true,
+  data: {
+    labels: mData,
+    datasets: [
+      {
+        label: 'CPU %',
+        data: dcpu,
+        fill: false,
+        pointBackgroundColor: "rgba(165, 97, 125, 1.0)",
+        borderColor: "rgba(165, 97, 125, 1.0)",
+        borderWidth: 2
+      },  
+      {
+        label: 'RAM %',
+        data: dmemory,
+        fill: false,
+        pointBackgroundColor: "#55868C",
+        borderColor: "#55868C",
+        borderWidth: 2
+      },
+      {
+        label: 'GPU °F',
+        data: dgputemp,
+        fill: false,
+        pointBackgroundColor: "#7768ae",
+        borderColor: "#7768ae",
+        borderWidth: 2
+      },
+      {
+        label: 'CPU °F',
+        data: dcputemp,
+        fill: false,
+        pointBackgroundColor: "#EEC584",
+        borderColor: "#EEC584",
+        borderWidth: 2
+      },
+
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            }, 
+        ticks: {
+          display: false,
+          beginAtZero: true,
+          increment: 5,
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            }, 
+        ticks: {
+          display: false,
+        }
+      }]
+    },
+
+  } 
+};
+
+var lineCanvas = document.getElementById("piChart");
+       
+var ctx = lineCanvas.getContext('2d');
+var lineChart = new Chart(ctx, options);
+
+$("#daily").click(function() {
+    var dcpu = {{dcpu|safe}};
+    var dmemory = {{dmemory|safe}};
+    var dcputemp = {{dcputemp|safe}};
+    var dgputemp = {{dgputemp|safe}};
+    var data = lineChart.config.data;
+    data.datasets[0].data = dcpu;
+    data.datasets[1].data = dmemory;
+    data.datasets[2].data = dgputemp;
+    data.datasets[3].data = dcputemp;
+    data.labels = {{dlabels|safe}};
+    lineChart.update();
+});
+
+$("#allTime").click(function() { 
+    var cpu = {{cpu|safe}};
+    var memory = {{memory|safe}};
+    var cputemp = {{cputemp|safe}};
+    var gputemp = {{gputemp|safe}};
+    var data = lineChart.config.data;
+    data.datasets[0].data = cpu;
+    data.datasets[1].data = memory;
+    data.datasets[2].data = gputemp;
+    data.datasets[3].data = cputemp;
+    data.labels = {{alltimelabels|safe}};
+    lineChart.update();
+});
+
+console.log("INSIDE lineChart::")
+console.log(lineChart)
+
+</script>
+
+{% else %}
+
+
+<script>
+
+var mData = {{dlabels|safe}};
+var dcpu = {{dcpu|safe}};
+var dmemory = {{dmemory|safe}};
+var options = {
+  type: 'line',
+  responsive: true,
+  data: {
+    labels: mData,
+    datasets: [
+      {
+        label: 'CPU %',
+        data: dcpu,
+        fill: false,
+        pointBackgroundColor: "rgba(165, 97, 125, 1.0)",
+        borderColor: "rgba(165, 97, 125, 1.0)",
+        borderWidth: 2
+      },  
+      {
+        label: 'RAM %',
+        data: dmemory,
+        fill: false,
+        pointBackgroundColor: "#55868C",
+        borderColor: "#55868C",
+        borderWidth: 2
+      },
+
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            }, 
+        ticks: {
+          display: false,
+          beginAtZero: true,
+          increment: 5,
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            }, 
+        ticks: {
+          display: false,
+        }
+      }]
+    },
+
+  } 
+};
+
+var lineCanvas = document.getElementById("piChart");
+       
+var ctx = lineCanvas.getContext('2d');
+var lineChart = new Chart(ctx, options);
+
+$("#daily").click(function() {
+    var dcpu = {{dcpu|safe}};
+    var dmemory = {{dmemory|safe}};
+    var data = lineChart.config.data;
+    data.datasets[0].data = dcpu;
+    data.datasets[1].data = dmemory;
+    data.labels = {{dlabels|safe}};
+    lineChart.update();
+});
+
+$("#allTime").click(function() { 
+    var cpu = {{cpu|safe}};
+    var memory = {{memory|safe}};
+    var data = lineChart.config.data;
+    data.datasets[0].data = cpu;
+    data.datasets[1].data = memory;
+    data.labels = {{alltimelabels|safe}};
+    lineChart.update();
+});
+
+console.log("INSIDE lineChart::")
+console.log(lineChart)
+
+</script>
+
+
+
+
+{% endif %}
+<script>
+
+var mData = {{dlabels|safe}};
+var duload = {{uloaddaily|safe}};
+var ddload = {{dloaddaily|safe}};
+var options = {
+  type: 'line',
+  responsive: true,
+  data: {
+    labels: mData,
+
+    datasets: [
+      {
+        label: 'up mb/s',
+        data: duload,
+        fill: false,
+        pointBackgroundColor: "#7f636e",
+        pointRadius: 6,
+		pointHoverRadius: 6,
+        borderColor: "#7f636e",
+        borderWidth: 2
+      },  
+      {
+        label: 'down mb/s',
+        data: ddload,
+        fill: false,
+        pointBackgroundColor: "#55868c",
+        pointRadius: 6,
+		pointHoverRadius: 6,
+        borderColor: "#55868c",
+        borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            },   
+        ticks: {
+          display: true,
+          beginAtZero: true,
+          increment: 5,
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+                color: "rgba(0, 0, 0, 0)",
+            },
+        ticks: {
+          display: false,
+        }
+      }]
+    },
+
+  } 
+};
+
+var lineCanvas = document.getElementById("mobilespeedChart");
+       
+var ctx = lineCanvas.getContext('2d');
+var lineChart2 = new Chart(ctx, options);
+
+$("#dailySpeed").click(function() {
+    var duload = {{uloaddaily|safe}};
+    var ddload = {{dloaddaily|safe}};
+    var data = lineChart2.config.data;
+    data.datasets[0].data = duload;
+    data.datasets[1].data = ddload;
+    data.labels = {{dlabels|safe}};
+    lineChart2.update();
+});
+
+$("#allTimeSpeed").click(function() { 
+    var uload = {{uload|safe}};
+    var dload = {{dload|safe}}; 
+    var data = lineChart2.config.data;
+    data.datasets[0].data = uload;
+    data.datasets[1].data = dload;
+    data.labels = {{alltimelabels|safe}};
+    lineChart2.update();
+});
+
+console.log("INSIDE lineChart::")
+console.log(lineChart)
+
+</script>
+{% endblock %}
+</html>

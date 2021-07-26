@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dashboard</title>
+</head>
+
+{% extends 'base.html' %} 
+{% load static %}
+{% load filename %}
+
+
+{% block content %}
+<style>
+
+</style>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+{% if lsoft == '' %}
+<script>
+$( document ).ready(function() {
+  $("#box").load("No software uploaded");
+});
+</script>
+{% else %}
+<script>
+$( document ).ready(function() {
+  $("#box").load("{{lsoft|cut:"F:/Hive-Bind-venv"}}");
+});
+</script>
+{% endif %}
+<body>
+  <div id="main">
+<div class="navbar navbar-inverse navbar-fixed-left">
+  <div style="position: relative">
+  <center><a href="/dashboard/"><img src="/media/website.logo.small.o.png" style="margin-bottom: 45%;" width="60%" class="img-fluid"></a></center>
+</div>
+  <ul class="nav navbar-nav">
+  
+   <li class="navy"><a href="/hardware/">Hardware</a></li>
+   <li class="navy"><a href="/software/">Software</a></li>
+   <li class="navy"><a href="#">History</a></li>
+   <li class="navy"><a href="/accounts/logout">Log Out</a></li>
+  </ul>
+</div>
+
+<div class="rightFluid container">
+<div class="dashboard-hardware">
+  <span><i>Hardware</i></span>
+</div>
+
+<div class="row hardwareRow">
+  <div class="col-sm-3">
+    <div class="card">
+      <div class="card-body" id="hardwareCard1">
+        <button id="deviceCountAll" onclick="location.href='/hardware/'">
+          <h4 class="subCardTitle"><i class="material-icons">computer</i></h4>
+
+        <div class="subCardContent">
+          <span><i>{{my_devices.count}}</i></span>
+        </div>
+        <br>
+        <h4 class="subCardTitle"><i class="material-icons" style="color: green;">cloud_done</i></h4>
+        <div class="subCardContent">
+          <span style="background-color: green"><i>{{deviceson.count}}</i></span>
+        </div>
+        <br>
+        <h4 class="subCardTitle"><i class="material-icons" style="color: red;">not_interested</i></h4>
+        <div class="subCardContent">
+          <span style="background-color: red;"><i>{{devicesoff.count}}</i></span>
+        </div>
+
+      </button>
+      </div>
+    </div>
+  </div> 
+
+  <div class="col-sm-3">
+    <div class="card osCard">
+      <div class="card-body" id="hardwareCard2">
+
+        <h4 class="subCardTitle"><i class="fab fa-2x fa-windows"></i></h4>
+        <div class="subCardContent">
+          <span style="background-color: #222; padding: 0px 11px;"><i>
+              {{deviceswindows}}
+          </i></span>
+        </div>
+        <br>
+        <h4 class="subCardTitle"><i class="fab fa-2x fa-raspberry-pi"></i></h4>
+        <div class="subCardContent">
+          <span style="background-color: #222; padding: 0px 11px;"><i>
+          {{devicesraspi}}
+        </i></span>
+        </div>
+        
+        {% if devicesubuntu %}
+        <h4 class="subCardTitle"><i class="fab fa-2x fa-ubuntu"></i></h4>
+        <div class="subCardContent">
+          <span style="background-color: #222; padding: 0px 11px;"><i>
+          {{devicesubuntu}}
+        </i></span>
+        </div>
+        {% endif %}
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+<div class="dashboard-software">
+  <span><i>Software</i></span>
+</div>
+<div class="row">
+  <div class="col-sm-5">
+    <div class="card" id="softwareCard1">
+      <div class="card-header" style="border: none; background-color: transparent;">
+        <strong>Software Groups</strong>
+      </div>
+      <div class="card-body">
+        <table id="software-table" class="table">
+  <thead>
+      <tr>
+        <th>Group Name</th>       
+        <th>Version</th>
+        <th>Uploaded</th>
+      </tr>
+    </thead>
+  <tbody>
+  {% for d in software %}
+    <tr>
+        <td>{{d.name}}</td>
+        <td>{{d.version}}</td>
+        <td>{{d.uploaded}}</td>  
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+      </div>
+    </div>
+  </div>
+    <div class="col-sm-5">
+    <div class="card" id="softwareCard1">
+      <div class="card-header" style="border: none; background-color: transparent;">
+
+
+        <strong>Last Uploaded</strong>
+        <div class="lastUploadedHeader">
+        <span><i>{{softname.file|filename}}</i><a type="button" class="btn btn-primary" id="softwareEdit" href="javascript:echoAction();"><i class="small material-icons">edit</i></a></span>
+
+      </div>
+        
+      </div>
+      {% if lsoft == '' %}
+      <div class="card-body">
+        <p>No software uploaded. Go upload some <a href="/software/">here</a></p>
+      </div>
+
+      {% else %}
+      <div class="card-body">
+        
+        <pre class="lastUploadedReader" id="box">
+          
+          
+          
+
+        </pre>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+</body>
+<script>
+function echoAction(){
+
+  var url = '/software/' + {{lspk.pk}} + '/editor/';
+  location.href = url;
+};
+</script>
+
+
+{% endblock %}
+</html>

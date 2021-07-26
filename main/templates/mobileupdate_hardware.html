@@ -1,0 +1,110 @@
+ {% load widget_tweaks %}
+{% load static %} 
+<div class="chartModal">
+<form method="post" action="" onsubmit="refreshPage()">
+  {% csrf_token %}
+
+  <div class="modal-header">
+
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    
+  </div>
+
+  <div class="modal-body">
+    <center>
+    {{form.friendly_name.label}}
+    {{form.friendly_name}}
+  <button type="submit" id="hardwareCheck" class="btn btn-primary" name="submit_update"><i class="material-icons">check</i></button>
+  {% for a in mydevice %}
+
+
+    <a href="{% url 'pi_details' a.pk %}" class="btn btn-primary" id="dEtails">More Details<i class="material-icons">chevron_right</i></a>
+    {% endfor %}
+</center>
+   
+  </div>
+
+
+
+</form>
+
+
+
+<canvas id="piChart"></canvas>
+
+</div>
+
+ 
+
+<script src="{% static 'js/Chart.js' %}"></script>
+<script>
+var options = {
+  type: 'line',
+  data: {
+    labels: {{labels|safe}},
+    datasets: [
+      {
+        label: 'CPU %',
+        data: {{cpu_usage|safe}},
+        pointBackgroundColor: "rgba(165, 97, 125, 1.0)",
+        borderColor: "rgba(165, 97, 125, 1.0)",
+        fill: false,
+        borderWidth: 2
+      },  
+      {
+        label: 'RAM %',
+        data: {{memory|safe}},
+        fill: false,
+        pointBackgroundColor: "#55868C",
+        borderColor: "#55868C",
+        borderWidth: 2
+      },
+      {
+        label: 'GPU °F',
+        data: {{gputemp|safe}},
+        fill: false,
+        pointBackgroundColor: "#7768ae",
+        borderColor: "#7768ae",
+        borderWidth: 2
+      },
+      {
+        label: 'CPU °F',
+        data: {{cputemp|safe}},
+        fill: false,
+        pointBackgroundColor: "#EEC584",
+        borderColor: "#EEC584",
+        borderWidth: 2
+      },
+
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          display: false,
+          beginAtZero: true,
+          increment: 5,
+        }
+      }],
+      xAxes: [{
+        ticks: {
+          display: false,
+        }
+      }]
+    },
+
+  } 
+};
+
+var lineCanvas = document.getElementById("piChart");
+       
+var ctx = lineCanvas.getContext('2d');
+var lineChart = new Chart(ctx, options);
+
+console.log("INSIDE lineChart::")
+console.log(lineChart)
+
+</script>
